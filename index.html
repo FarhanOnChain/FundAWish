@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>FundAWish — Small wishes. Real kindness.</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Lora:wght@400;600;700&display=swap');
+  *{margin:0;padding:0;box-sizing:border-box;}
+  :root{--pink:#e8896a;--gold:#d4a450;--dark:#2a1f1a;--muted:#8a7a70;--light:#fffdf9;}
+  body{font-family:'Inter','Helvetica Neue',sans-serif;background:#fffdf9;color:var(--dark);min-height:100vh;overflow-x:hidden;}
+  .page-bg{position:fixed;inset:0;z-index:0;background:linear-gradient(160deg,#fffdf9 0%,#fff0ea 45%,#fffae8 100%);pointer-events:none;}
+  .orb{position:fixed;border-radius:50%;filter:blur(72px);pointer-events:none;z-index:0;animation:orbFloat linear infinite;}
+  .orb-1{width:440px;height:440px;background:rgba(232,137,106,0.14);top:-130px;left:-110px;animation-duration:18s;}
+  .orb-2{width:380px;height:380px;background:rgba(212,164,80,0.11);top:28%;right:-90px;animation-duration:23s;animation-delay:-7s;}
+  .orb-3{width:320px;height:320px;background:rgba(232,137,106,0.09);bottom:8%;left:18%;animation-duration:28s;animation-delay:-14s;}
+  @keyframes orbFloat{0%{transform:translateY(0) scale(1);}33%{transform:translateY(-28px) scale(1.04);}66%{transform:translateY(16px) scale(0.97);}100%{transform:translateY(0) scale(1);}}
+  nav{position:sticky;top:0;z-index:100;display:flex;align-items:center;justify-content:space-between;padding:1.3rem 2.5rem;background:rgba(255,253,249,0.82);backdrop-filter:blur(18px);border-bottom:1px solid rgba(212,164,80,0.12);}
+  .logo{font-family:'Lora',Georgia,serif;font-size:1.45rem;font-weight:700;background:linear-gradient(135deg,var(--gold),var(--pink));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;text-decoration:none;letter-spacing:-0.3px;}
+  .nav-home{font-size:0.88rem;color:var(--muted);text-decoration:none;font-weight:500;transition:color 0.2s;}
+  .nav-home:hover{color:var(--gold);}
+  .wrap{position:relative;z-index:1;max-width:760px;margin:0 auto;padding:0 1.5rem;}
+  .hero{text-align:center;padding:7rem 1rem 5rem;position:relative;z-index:1;}
+  .hero-badge{display:inline-block;background:linear-gradient(135deg,rgba(212,164,80,0.15),rgba(232,137,106,0.1));border:1px solid rgba(212,164,80,0.3);color:#b0692a;font-size:0.73rem;font-weight:600;letter-spacing:0.1em;padding:0.36rem 1.1rem;border-radius:100px;margin-bottom:2rem;animation:fadeUp 0.5s ease both;}
+  .hero h1{font-family:'Lora',Georgia,serif;font-size:clamp(2.3rem,6vw,3.9rem);font-weight:700;line-height:1.18;letter-spacing:-1px;background:linear-gradient(135deg,#2a1f1a 0%,#c17a3a 52%,#e8896a 100%);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;margin-bottom:1.2rem;animation:fadeUp 0.55s ease 0.1s both;}
+  .hero-sub{font-size:1.08rem;color:var(--muted);font-weight:300;line-height:1.65;max-width:400px;margin:0 auto 2.8rem;animation:fadeUp 0.55s ease 0.2s both;}
+  .hero-actions{display:flex;gap:1rem;justify-content:center;flex-wrap:wrap;margin-bottom:1.8rem;animation:fadeUp 0.55s ease 0.3s both;}
+  .btn-primary{display:inline-flex;align-items:center;gap:0.45rem;padding:0.88rem 2rem;border-radius:100px;background:linear-gradient(135deg,var(--pink),var(--gold));color:#fff;font-size:0.92rem;font-weight:600;text-decoration:none;border:none;cursor:pointer;transition:transform 0.2s,box-shadow 0.2s;box-shadow:0 4px 22px rgba(212,164,80,0.32);letter-spacing:0.01em;}
+  .btn-primary:hover{transform:translateY(-2px) scale(1.03);box-shadow:0 8px 32px rgba(212,164,80,0.45);}
+  .btn-primary:active{transform:scale(0.97);}
+  .btn-outline{display:inline-flex;align-items:center;gap:0.45rem;padding:0.88rem 2rem;border-radius:100px;background:rgba(255,255,255,0.72);color:#c17a3a;font-size:0.92rem;font-weight:600;text-decoration:none;border:1.5px solid rgba(212,164,80,0.4);cursor:pointer;transition:transform 0.2s,box-shadow 0.2s,background 0.2s;backdrop-filter:blur(8px);}
+  .btn-outline:hover{transform:translateY(-2px) scale(1.03);background:rgba(255,255,255,0.92);box-shadow:0 6px 24px rgba(212,164,80,0.2);}
+  .btn-random{display:inline-flex;align-items:center;gap:0.45rem;padding:0.62rem 1.4rem;border-radius:100px;background:transparent;color:var(--muted);font-size:0.82rem;font-weight:500;border:1px solid rgba(212,164,80,0.22);cursor:pointer;transition:all 0.2s;animation:fadeUp 0.55s ease 0.4s both;}
+  .btn-random:hover{color:#c17a3a;border-color:rgba(212,164,80,0.45);background:rgba(212,164,80,0.05);transform:translateY(-1px);}
+  .wish-pill{display:inline-flex;align-items:center;gap:0.5rem;background:rgba(232,137,106,0.07);border:1px solid rgba(232,137,106,0.18);border-radius:100px;padding:0.32rem 1rem;font-size:0.79rem;color:#c17a3a;margin-top:1.6rem;animation:fadeUp 0.55s ease 0.5s both;}
+  .pulse-dot{width:6px;height:6px;border-radius:50%;background:var(--pink);animation:pulseDot 2s ease-in-out infinite;}
+  @keyframes pulseDot{0%,100%{opacity:1;transform:scale(1);}50%{opacity:0.4;transform:scale(0.65);}}
+  .section{position:relative;z-index:1;padding:3.5rem 0;}
+  .section-label{font-size:0.7rem;font-weight:700;letter-spacing:0.13em;color:#c17a3a;margin-bottom:0.55rem;text-transform:uppercase;}
+  .section-title{font-family:'Lora',Georgia,serif;font-size:1.65rem;font-weight:700;color:var(--dark);letter-spacing:-0.5px;margin-bottom:1.8rem;}
+  .divider{height:1px;background:linear-gradient(to right,transparent,rgba(212,164,80,0.2),transparent);margin:0.5rem 0;}
+  .lb-grid{display:flex;flex-direction:column;gap:0.7rem;}
+  .lb-card{display:flex;align-items:center;gap:1rem;background:rgba(255,255,255,0.72);border:1px solid rgba(212,164,80,0.14);border-radius:18px;padding:1rem 1.4rem;backdrop-filter:blur(12px);transition:transform 0.2s,box-shadow 0.2s,border-color 0.2s;animation:fadeUp 0.5s ease both;}
+  .lb-card:hover{transform:translateY(-2px);box-shadow:0 8px 28px rgba(212,164,80,0.12);border-color:rgba(212,164,80,0.3);}
+  .lb-card.lb-top{background:linear-gradient(135deg,rgba(255,255,255,0.9),rgba(255,248,234,0.88));border-color:rgba(212,164,80,0.26);box-shadow:0 4px 20px rgba(212,164,80,0.1);}
+  .lb-rank{font-size:1.1rem;font-weight:700;min-width:2rem;text-align:center;}
+  .lb-rank.gold{color:#c17a3a;}.lb-rank.silver{color:#9a9080;}.lb-rank.bronze{color:#a87040;}.lb-rank.plain{color:#c0b0a0;font-size:0.88rem;}
+  .lb-avatar{width:38px;height:38px;border-radius:50%;background:linear-gradient(135deg,rgba(232,137,106,0.22),rgba(212,164,80,0.18));display:flex;align-items:center;justify-content:center;font-size:0.76rem;font-weight:700;color:#c17a3a;flex-shrink:0;border:1px solid rgba(212,164,80,0.2);}
+  .lb-info{flex:1;}
+  .lb-name{font-size:0.9rem;font-weight:600;color:var(--dark);margin-bottom:0.15rem;}
+  .lb-label{font-size:0.74rem;color:var(--muted);}
+  .lb-count{font-size:0.8rem;font-weight:600;color:#c17a3a;background:rgba(212,164,80,0.1);border:1px solid rgba(212,164,80,0.2);border-radius:100px;padding:0.18rem 0.7rem;white-space:nowrap;}
+  .about-card{background:rgba(255,255,255,0.7);border:1px solid rgba(212,164,80,0.16);border-radius:24px;padding:2.6rem 3rem;backdrop-filter:blur(12px);text-align:center;}
+  .about-card p{font-family:'Lora',Georgia,serif;font-size:1.02rem;color:#5a4a42;line-height:1.9;}
+  .about-card p+p{margin-top:0.85rem;}
+  .about-steps{display:grid;grid-template-columns:repeat(3,1fr);gap:1rem;margin-top:2rem;}
+  .about-step{background:rgba(255,255,255,0.6);border:1px solid rgba(212,164,80,0.13);border-radius:16px;padding:1.4rem 1rem;text-align:center;}
+  .about-step-icon{font-size:1.3rem;margin-bottom:0.55rem;display:block;}
+  .about-step-title{font-weight:600;font-size:0.86rem;color:var(--dark);margin-bottom:0.28rem;}
+  .about-step-text{font-size:0.76rem;color:var(--muted);line-height:1.5;font-family:'Inter',sans-serif;}
+  footer{position:relative;z-index:1;text-align:center;padding:2rem;font-size:0.78rem;color:#b0a098;border-top:1px solid rgba(212,164,80,0.1);}
+  .floater{position:fixed;bottom:1.8rem;right:1.8rem;width:50px;height:50px;border-radius:50%;background:linear-gradient(135deg,var(--pink),var(--gold));display:flex;align-items:center;justify-content:center;box-shadow:0 4px 20px rgba(212,164,80,0.4);cursor:pointer;text-decoration:none;color:white;font-size:1.5rem;font-weight:300;border:none;transition:transform 0.2s,box-shadow 0.2s;z-index:200;animation:floatIn 0.5s ease 1s both;}
+  .floater:hover{transform:translateY(-3px) scale(1.09);box-shadow:0 8px 28px rgba(212,164,80,0.5);}
+  @keyframes fadeUp{from{opacity:0;transform:translateY(20px);}to{opacity:1;transform:translateY(0);}}
+  @keyframes floatIn{from{opacity:0;transform:translateY(16px);}to{opacity:1;transform:translateY(0);}}
+  @media(max-width:600px){nav{padding:1.1rem 1.2rem;}.hero{padding:5rem 0.5rem 3.5rem;}.hero h1{font-size:2rem;}.about-steps{grid-template-columns:1fr;}.about-card{padding:2rem 1.4rem;}.section{padding:2.8rem 0;}}
+</style>
+</head>
+<body>
+
+<div class="page-bg"></div>
+<div class="orb orb-1"></div>
+<div class="orb orb-2"></div>
+<div class="orb orb-3"></div>
+
+<nav>
+  <a href="index.html" class="logo">FundAWish</a>
+  <a href="index.html" class="nav-home">Home</a>
+</nav>
+
+<section class="hero">
+  <div class="hero-badge">Small wishes. Real people.</div>
+  <h1>Make someone's day<br>in seconds</h1>
+  <p class="hero-sub">Small wishes. Real people. Simple kindness.</p>
+  <div class="hero-actions">
+    <a href="make.html" class="btn-primary">✦ Make a wish</a>
+    <a href="fulfill.html" class="btn-outline">◎ Fulfill a wish</a>
+  </div>
+  <button class="btn-random" onclick="goRandom()">✧ Pick a random wish</button>
+  <div class="wish-pill">
+    <div class="pulse-dot"></div>
+    <span id="wish-counter">Loading...</span>
+  </div>
+</section>
+
+<div class="wrap">
+  <div class="divider"></div>
+
+  <section class="section">
+    <p class="section-label">Top contributors</p>
+    <h2 class="section-title">People making it happen</h2>
+    <div class="lb-grid" id="leaderboard"></div>
+  </section>
+
+  <div class="divider"></div>
+
+  <section class="section">
+    <p class="section-label">About</p>
+    <h2 class="section-title">What is FundAWish?</h2>
+    <div class="about-card">
+      <p>Someone out there just needs a coffee. Or a bus fare. Or twenty minutes of relief from a week that's been too heavy.</p>
+      <p>FundAWish is where you post that small wish. No campaign. No pitch deck. Just a real moment and a real ask.</p>
+      <p>And someone who woke up feeling generous that morning sends it directly. No platform taking a cut. No middleman. Just two people.</p>
+      <div class="about-steps">
+        <div class="about-step">
+          <span class="about-step-icon">✦</span>
+          <div class="about-step-title">Post a wish</div>
+          <div class="about-step-text">Write what you need. Keep it simple and honest.</div>
+        </div>
+        <div class="about-step">
+          <span class="about-step-icon">◎</span>
+          <div class="about-step-title">Someone sees it</div>
+          <div class="about-step-text">A stranger feels like helping and clicks your wish.</div>
+        </div>
+        <div class="about-step">
+          <span class="about-step-icon">❤</span>
+          <div class="about-step-title">It happens</div>
+          <div class="about-step-text">They send directly to your wallet. You confirm. Done.</div>
+        </div>
+      </div>
+    </div>
+  </section>
+</div>
+
+<a href="make.html" class="floater" title="Make a wish">+</a>
+
+<footer>
+  FundAWish &mdash; built with kindness &mdash; <a href="https://linktr.ee/FarhanOnChain" style="color:#c17a3a;text-decoration:none;">Farhan</a>
+</footer>
+
+<script>
+  var API_URL = 'https://script.google.com/macros/s/AKfycbyZj0Ge2pIK_C2WyPs46WZ9d8BiwHcwlXeWuAFMg8wXGKLVoazA9rujLSlY5cN59LzEsg/exec';
+  var LABELS  = ['made people smile','quiet legend','anonymous helper','kind stranger','silent giver','spread kindness'];
+
+  function escHtml(s){ return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
+  function initials(n){ return n.replace('@','').toUpperCase().slice(0,2); }
+
+  function buildLeaderboard(wishes) {
+    var seen = {};
+    wishes.forEach(function(w) {
+      var u = w.username || 'anonymous';
+      if (!seen[u]) seen[u] = { username: u, total: 0, completed: 0 };
+      seen[u].total++;
+      if (w.status === 'completed') seen[u].completed++;
+    });
+
+    var entries = Object.keys(seen).map(function(k){ return seen[k]; });
+    entries.sort(function(a,b){ return (b.completed - a.completed) || (b.total - a.total); });
+    entries = entries.slice(0,5);
+
+    var grid = document.getElementById('leaderboard');
+    if (entries.length === 0) {
+      grid.innerHTML = '<div style="text-align:center;padding:2rem;color:var(--muted);font-family:\'Lora\',serif;font-size:0.92rem;">No one here yet. Be the first to make a wish.</div>';
+      return;
+    }
+
+    var icons  = ['🥇','🥈','🥉'];
+    var klass  = ['gold','silver','bronze'];
+
+    entries.forEach(function(e, i) {
+      var card = document.createElement('div');
+      card.className = 'lb-card' + (i===0?' lb-top':'');
+      card.style.animationDelay = (i*0.08)+'s';
+      var rank   = i<3 ? '<span class="lb-rank '+klass[i]+'">'+icons[i]+'</span>' : '<span class="lb-rank plain">'+(i+1)+'</span>';
+      var label  = LABELS[i % LABELS.length];
+      var badge  = e.completed>0 ? e.completed+' fulfilled' : e.total+' wish'+(e.total!==1?'es':'');
+      card.innerHTML = rank +
+        '<div class="lb-avatar">'+initials(e.username)+'</div>' +
+        '<div class="lb-info"><div class="lb-name">'+escHtml(e.username)+'</div><div class="lb-label">'+label+'</div></div>' +
+        '<span class="lb-count">'+badge+'</span>';
+      grid.appendChild(card);
+    });
+  }
+
+  function goRandom() {
+    sessionStorage.setItem('fundawish_random','1');
+    window.location.href = 'fulfill.html';
+  }
+
+  document.addEventListener('DOMContentLoaded', function() {
+    fetch(API_URL)
+      .then(function(r){ return r.json(); })
+      .then(function(data) {
+        var wishes = (data.ok && data.wishes) ? data.wishes : [];
+        var open   = wishes.filter(function(w){ return w.status !== 'completed'; });
+        var el = document.getElementById('wish-counter');
+        if (open.length===0)      el.textContent = 'No open wishes yet. Be the first.';
+        else if (open.length===1) el.textContent = '1 wish floating out there';
+        else                      el.textContent = open.length+' wishes floating out there';
+        buildLeaderboard(wishes);
+      })
+      .catch(function() {
+        document.getElementById('wish-counter').textContent = 'Wishes are out there...';
+        buildLeaderboard([]);
+      });
+  });
+</script>
+</body>
+</html>

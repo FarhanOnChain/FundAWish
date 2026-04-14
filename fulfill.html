@@ -1,0 +1,496 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Fulfill wishes — FundAWish</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Lora:wght@400;600;700&display=swap');
+  *{margin:0;padding:0;box-sizing:border-box;}
+  :root{--pink:#e8896a;--gold:#d4a450;--dark:#2a1f1a;--muted:#8a7a70;}
+  body{font-family:'Inter','Helvetica Neue',sans-serif;background:linear-gradient(160deg,#fffdf9 0%,#fff0ea 45%,#fffae8 100%);color:var(--dark);min-height:100vh;overflow-x:hidden;}
+  .orb{position:fixed;border-radius:50%;filter:blur(72px);pointer-events:none;z-index:0;animation:orbFloat linear infinite;}
+  .orb-1{width:420px;height:420px;background:rgba(232,137,106,0.12);top:-130px;left:-110px;animation-duration:18s;}
+  .orb-2{width:360px;height:360px;background:rgba(212,164,80,0.1);top:30%;right:-90px;animation-duration:24s;animation-delay:-8s;}
+  .orb-3{width:300px;height:300px;background:rgba(232,137,106,0.08);bottom:6%;left:15%;animation-duration:28s;animation-delay:-15s;}
+  @keyframes orbFloat{0%{transform:translateY(0) scale(1);}33%{transform:translateY(-26px) scale(1.04);}66%{transform:translateY(14px) scale(0.97);}100%{transform:translateY(0) scale(1);}}
+
+  nav{position:sticky;top:0;z-index:100;display:flex;align-items:center;justify-content:space-between;padding:1.3rem 2.5rem;background:rgba(255,253,249,0.82);backdrop-filter:blur(18px);border-bottom:1px solid rgba(212,164,80,0.12);}
+  .logo{font-family:'Lora',Georgia,serif;font-size:1.45rem;font-weight:700;background:linear-gradient(135deg,var(--gold),var(--pink));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;text-decoration:none;letter-spacing:-0.3px;}
+  .nav-home{font-size:0.88rem;color:var(--muted);text-decoration:none;font-weight:500;transition:color 0.2s;}
+  .nav-home:hover{color:var(--gold);}
+
+  .page{position:relative;z-index:1;max-width:700px;margin:0 auto;padding:3.5rem 1.5rem 6rem;}
+  .page-header{display:flex;align-items:flex-end;justify-content:space-between;margin-bottom:2.2rem;flex-wrap:wrap;gap:1rem;}
+  .page-header-left h1{font-family:'Lora',Georgia,serif;font-size:2.1rem;font-weight:700;letter-spacing:-1px;color:var(--dark);margin-bottom:0.3rem;}
+  .page-header-left p{color:var(--muted);font-size:0.88rem;font-weight:300;}
+  .btn-surprise{display:inline-flex;align-items:center;gap:0.4rem;padding:0.62rem 1.3rem;border-radius:100px;background:rgba(255,255,255,0.7);color:#c17a3a;font-size:0.83rem;font-family:'Inter',sans-serif;border:1.5px solid rgba(212,164,80,0.35);cursor:pointer;transition:transform 0.18s,background 0.18s;backdrop-filter:blur(8px);white-space:nowrap;}
+  .btn-surprise:hover{background:rgba(255,255,255,0.92);transform:translateY(-1px);}
+
+  .wish-feed{display:flex;flex-direction:column;gap:1.1rem;}
+
+  /* ── CARDS ── */
+  .wish-card{background:rgba(255,255,255,0.78);border:1px solid rgba(212,164,80,0.16);border-radius:22px;padding:1.7rem 1.9rem;box-shadow:0 4px 24px rgba(212,164,80,0.08),0 1px 6px rgba(0,0,0,0.03);transition:transform 0.22s,box-shadow 0.22s,border-color 0.22s;animation:cardIn 0.5s ease both;backdrop-filter:blur(8px);}
+  .wish-card:hover{transform:translateY(-3px);box-shadow:0 10px 36px rgba(212,164,80,0.16),0 2px 8px rgba(0,0,0,0.04);border-color:rgba(212,164,80,0.35);}
+  .wish-card.highlight{border-color:rgba(232,137,106,0.6);box-shadow:0 0 0 3px rgba(232,137,106,0.12),0 10px 36px rgba(212,164,80,0.2);animation:glowPulse 1.2s ease;}
+  .wish-card.status-sent{border-color:rgba(212,164,80,0.3);background:rgba(255,252,242,0.85);}
+  .wish-card.status-completed{border-color:rgba(130,200,130,0.35);background:rgba(245,255,245,0.75);}
+
+  .card-top{display:flex;align-items:flex-start;justify-content:space-between;gap:1rem;margin-bottom:1rem;}
+  .wish-text{font-family:'Lora',Georgia,serif;font-size:1.05rem;color:var(--dark);line-height:1.6;flex:1;}
+  .wish-amount{display:inline-flex;align-items:center;background:linear-gradient(135deg,rgba(232,137,106,0.12),rgba(212,164,80,0.1));border:1px solid rgba(212,164,80,0.22);border-radius:100px;padding:0.28rem 0.85rem;font-size:0.92rem;font-weight:700;color:#c17a3a;white-space:nowrap;flex-shrink:0;}
+
+  .card-meta{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:0.6rem;}
+  .card-meta-left{display:flex;align-items:center;gap:0.9rem;}
+  .username{font-size:0.82rem;color:#c17a3a;text-decoration:none;font-weight:600;transition:opacity 0.2s;}
+  .username:hover{opacity:0.7;}
+  .timestamp{font-size:0.76rem;color:#b0a090;}
+  .micro-hint{font-size:0.73rem;color:#c0b0a0;font-style:italic;width:100%;margin-top:0.65rem;padding-top:0.65rem;border-top:1px solid rgba(212,164,80,0.1);}
+
+  /* ── STATUS BADGE ── */
+  .status-badge{display:inline-flex;align-items:center;gap:0.3rem;font-size:0.73rem;font-weight:600;padding:0.22rem 0.7rem;border-radius:100px;letter-spacing:0.03em;}
+  .status-badge.open{background:rgba(212,164,80,0.1);color:#a06020;border:1px solid rgba(212,164,80,0.2);}
+  .status-badge.sent{background:rgba(100,160,255,0.1);color:#2060b0;border:1px solid rgba(100,160,255,0.22);}
+  .status-badge.completed{background:rgba(80,180,100,0.1);color:#1a7a30;border:1px solid rgba(80,180,100,0.22);}
+
+  /* ── BUTTONS ── */
+  .btn-fulfill{display:inline-flex;align-items:center;gap:0.4rem;padding:0.52rem 1.05rem;border-radius:100px;background:linear-gradient(135deg,var(--pink),var(--gold));color:white;font-size:0.8rem;font-family:'Inter',sans-serif;font-weight:600;border:none;cursor:pointer;transition:transform 0.18s,box-shadow 0.18s;box-shadow:0 3px 12px rgba(212,164,80,0.25);flex-shrink:0;}
+  .btn-fulfill:hover{transform:translateY(-1px);box-shadow:0 5px 18px rgba(212,164,80,0.38);}
+  .btn-fulfill:active{transform:scale(0.96);}
+  .btn-fulfill:disabled{opacity:0.45;cursor:not-allowed;transform:none;box-shadow:none;}
+
+  /* ── EMPTY STATE ── */
+  .empty-state{text-align:center;padding:5rem 2rem;animation:fadeIn 0.6s ease both;}
+  .empty-icon{font-size:2.4rem;margin-bottom:1.1rem;opacity:0.33;}
+  .empty-title{font-family:'Lora',Georgia,serif;font-size:1.45rem;color:#4a3a30;margin-bottom:0.55rem;letter-spacing:-0.3px;}
+  .empty-sub{color:var(--muted);font-size:0.9rem;margin-bottom:2.4rem;line-height:1.6;}
+  .btn-dev-smile{display:inline-flex;align-items:center;gap:0.55rem;padding:0.95rem 2.1rem;border-radius:100px;background:linear-gradient(135deg,rgba(232,137,106,0.1),rgba(212,164,80,0.08));border:1.5px solid rgba(212,164,80,0.3);color:#c17a3a;font-family:'Inter',sans-serif;font-size:0.92rem;font-weight:600;cursor:pointer;transition:transform 0.2s,box-shadow 0.2s;}
+  .btn-dev-smile:hover{transform:translateY(-2px);box-shadow:0 6px 24px rgba(212,164,80,0.2);}
+
+  /* ── MODAL BACKDROP ── */
+  .modal-backdrop{position:fixed;inset:0;background:rgba(42,31,26,0.48);backdrop-filter:blur(10px);display:flex;align-items:center;justify-content:center;z-index:999;padding:1.5rem;opacity:0;pointer-events:none;transition:opacity 0.28s ease;}
+  .modal-backdrop.show{opacity:1;pointer-events:all;}
+  .modal{background:linear-gradient(135deg,#fffdf9,#fff8f0);border:1px solid rgba(212,164,80,0.22);border-radius:26px;padding:2.3rem;max-width:460px;width:100%;box-shadow:0 24px 64px rgba(42,31,26,0.2);transform:scale(0.9) translateY(12px);transition:transform 0.32s cubic-bezier(0.34,1.56,0.64,1);}
+  .modal-backdrop.show .modal{transform:scale(1) translateY(0);}
+  .modal-close{float:right;background:none;border:none;font-size:1.2rem;color:#b0a090;cursor:pointer;transition:color 0.2s;line-height:1;margin-top:-0.3rem;}
+  .modal-close:hover{color:var(--dark);}
+  .modal-label{font-size:0.7rem;font-weight:700;color:#c17a3a;letter-spacing:0.12em;text-transform:uppercase;margin-bottom:1.3rem;display:block;}
+  .modal-wish-preview{font-family:'Lora',Georgia,serif;font-size:1.1rem;color:var(--dark);line-height:1.6;margin-bottom:1.5rem;padding-bottom:1.3rem;border-bottom:1px solid rgba(212,164,80,0.14);}
+  .modal-field{margin-bottom:1.1rem;}
+  .modal-field-label{font-size:0.7rem;color:#a09080;letter-spacing:0.07em;font-weight:600;margin-bottom:0.38rem;text-transform:uppercase;}
+  .modal-field-value{display:flex;align-items:center;justify-content:space-between;gap:0.8rem;background:rgba(250,247,242,0.85);border:1px solid rgba(212,164,80,0.16);border-radius:12px;padding:0.72rem 1rem;}
+  .modal-field-value a{color:#c17a3a;text-decoration:none;font-weight:600;font-size:0.88rem;}
+  .modal-field-value span{font-size:0.8rem;color:#6a5a52;word-break:break-all;line-height:1.4;}
+  .btn-copy{flex-shrink:0;background:linear-gradient(135deg,var(--pink),var(--gold));color:white;border:none;border-radius:8px;padding:0.32rem 0.72rem;font-size:0.73rem;font-family:'Inter',sans-serif;font-weight:600;cursor:pointer;transition:transform 0.15s;}
+  .btn-copy:hover{transform:scale(1.05);}
+  .btn-copy:active{transform:scale(0.95);}
+
+  /* ── STEP INDICATOR ── */
+  .step-indicator{display:flex;align-items:center;gap:0.5rem;margin-bottom:1.4rem;}
+  .step-dot{width:8px;height:8px;border-radius:50%;background:rgba(212,164,80,0.25);transition:background 0.3s;}
+  .step-dot.active{background:linear-gradient(135deg,var(--pink),var(--gold));}
+  .step-label{font-size:0.72rem;color:var(--muted);font-weight:500;}
+
+  /* ── MODAL STEPS ── */
+  .modal-step{display:none;}
+  .modal-step.active{display:block;}
+
+  /* ── ACTION BUTTONS IN MODAL ── */
+  .btn-modal-action{width:100%;padding:0.9rem;border:none;border-radius:100px;background:linear-gradient(135deg,var(--pink),var(--gold));color:#fff;font-family:'Inter',sans-serif;font-size:0.93rem;font-weight:600;cursor:pointer;transition:transform 0.18s,box-shadow 0.18s;box-shadow:0 4px 18px rgba(212,164,80,0.3);margin-top:0.5rem;letter-spacing:0.01em;}
+  .btn-modal-action:hover{transform:translateY(-1px);box-shadow:0 7px 24px rgba(212,164,80,0.42);}
+  .btn-modal-action:active{transform:scale(0.97);}
+  .btn-modal-action:disabled{opacity:0.5;cursor:not-allowed;transform:none;box-shadow:none;}
+  .btn-modal-secondary{width:100%;padding:0.8rem;border:1.5px solid rgba(212,164,80,0.35);border-radius:100px;background:transparent;color:#c17a3a;font-family:'Inter',sans-serif;font-size:0.88rem;font-weight:500;cursor:pointer;transition:all 0.18s;margin-top:0.6rem;}
+  .btn-modal-secondary:hover{background:rgba(212,164,80,0.06);}
+
+  /* ── DISCLAIMER ── */
+  .modal-disclaimer{margin-top:1.2rem;font-size:0.74rem;color:#a09080;text-align:center;line-height:1.5;}
+
+  /* ── STATUS STATES IN MODAL ── */
+  .status-sent-box{background:rgba(100,160,255,0.07);border:1px solid rgba(100,160,255,0.2);border-radius:14px;padding:1.2rem;text-align:center;margin-bottom:1rem;}
+  .status-sent-box .status-icon{font-size:1.6rem;margin-bottom:0.5rem;}
+  .status-sent-box p{font-size:0.88rem;color:#2060b0;line-height:1.5;}
+  .status-completed-box{background:rgba(80,180,100,0.07);border:1px solid rgba(80,180,100,0.2);border-radius:14px;padding:1.4rem;text-align:center;margin-bottom:1rem;}
+  .status-completed-box .status-icon{font-size:1.8rem;margin-bottom:0.5rem;}
+  .status-completed-box p{font-size:0.9rem;color:#1a7a30;line-height:1.5;font-family:'Lora',Georgia,serif;}
+
+  /* ── DEV MODAL ── */
+  .dev-message{font-family:'Lora',Georgia,serif;font-size:1rem;color:#4a3a30;line-height:1.7;margin-bottom:1.5rem;padding-bottom:1.3rem;border-bottom:1px solid rgba(212,164,80,0.14);}
+  .modal-contact{display:block;text-align:center;margin-top:1.1rem;padding:0.75rem;border-radius:100px;background:linear-gradient(135deg,var(--pink),var(--gold));color:white;font-family:'Inter',sans-serif;font-size:0.88rem;font-weight:600;text-decoration:none;transition:transform 0.2s,box-shadow 0.2s;box-shadow:0 4px 16px rgba(212,164,80,0.3);}
+  .modal-contact:hover{transform:translateY(-2px);box-shadow:0 7px 22px rgba(212,164,80,0.42);}
+
+  /* ── FOOTER ── */
+  footer{position:relative;z-index:1;text-align:center;padding:2rem;font-size:0.78rem;color:#b0a098;border-top:1px solid rgba(212,164,80,0.1);margin-top:1rem;}
+
+  /* ── ANIMATIONS ── */
+  @keyframes cardIn{from{opacity:0;transform:translateY(14px);}to{opacity:1;transform:translateY(0);}}
+  @keyframes fadeIn{from{opacity:0;}to{opacity:1;}}
+  @keyframes glowPulse{0%{box-shadow:0 0 0 0 rgba(232,137,106,0.45);}50%{box-shadow:0 0 0 14px rgba(232,137,106,0);}100%{box-shadow:0 0 0 0 rgba(232,137,106,0);}}
+  @keyframes orbFloat{0%{transform:translateY(0) scale(1);}33%{transform:translateY(-26px) scale(1.04);}66%{transform:translateY(14px) scale(0.97);}100%{transform:translateY(0) scale(1);}}
+
+  @media(max-width:600px){nav{padding:1.1rem 1.2rem;}.page{padding:2.5rem 1rem 5rem;}.modal{padding:1.8rem 1.4rem;}}
+</style>
+</head>
+<body>
+
+<div class="orb orb-1"></div>
+<div class="orb orb-2"></div>
+<div class="orb orb-3"></div>
+
+<nav>
+  <a href="index.html" class="logo">FundAWish</a>
+  <a href="index.html" class="nav-home">Home</a>
+</nav>
+
+<div class="page">
+  <div class="page-header">
+    <div class="page-header-left">
+      <h1>Fulfill wishes</h1>
+      <p>Pick one that speaks to you.</p>
+    </div>
+    <button class="btn-surprise" onclick="surpriseMe()">✦ Surprise me</button>
+  </div>
+  <div class="wish-feed" id="wish-feed"></div>
+</div>
+
+<!-- ── FULFILL MODAL (3-step) ── -->
+<div class="modal-backdrop" id="fulfill-modal">
+  <div class="modal">
+    <button class="modal-close" onclick="closeModal('fulfill-modal')">&times;</button>
+
+    <!-- Step indicator -->
+    <div class="step-indicator" id="step-indicator">
+      <div class="step-dot active" id="dot-1"></div>
+      <div class="step-dot" id="dot-2"></div>
+      <div class="step-dot" id="dot-3"></div>
+      <span class="step-label" id="step-label-text">Send payment</span>
+    </div>
+
+    <span class="modal-label">SEND DIRECTLY TO</span>
+    <p class="modal-wish-preview" id="modal-wish-text"></p>
+
+    <!-- STEP 1: open — show wallet details -->
+    <div class="modal-step active" id="step-1">
+      <div class="modal-field">
+        <div class="modal-field-label">X USERNAME</div>
+        <div class="modal-field-value">
+          <a id="modal-username" href="#" target="_blank"></a>
+        </div>
+      </div>
+      <div class="modal-field">
+        <div class="modal-field-label">WALLET ADDRESS</div>
+        <div class="modal-field-value">
+          <span id="modal-wallet"></span>
+          <button class="btn-copy" onclick="copyWallet()" id="copy-btn">Copy</button>
+        </div>
+      </div>
+      <p class="modal-disclaimer">FundAWish does not handle payments. Always verify before sending.</p>
+      <button class="btn-modal-action" onclick="confirmSent()">I've sent it ✓</button>
+    </div>
+
+    <!-- STEP 2: sent — waiting for receiver -->
+    <div class="modal-step" id="step-2">
+      <div class="status-sent-box">
+        <div class="status-icon">⏳</div>
+        <p>Payment sent.<br>Waiting for <strong id="step2-username"></strong> to confirm they received it.</p>
+      </div>
+      <button class="btn-modal-action" onclick="confirmReceived()" id="btn-received">Yes, I received it ✓</button>
+      <button class="btn-modal-secondary" onclick="closeModal('fulfill-modal')">Close for now</button>
+      <p class="modal-disclaimer">Only the recipient should confirm receipt.</p>
+    </div>
+
+    <!-- STEP 3: completed -->
+    <div class="modal-step" id="step-3">
+      <div class="status-completed-box">
+        <div class="status-icon">✦</div>
+        <p>This wish was fulfilled.<br>Made possible by someone kind.</p>
+      </div>
+      <button class="btn-modal-secondary" onclick="closeModal('fulfill-modal')">Close</button>
+    </div>
+  </div>
+</div>
+
+<!-- ── DEV MODAL ── -->
+<div class="modal-backdrop" id="dev-modal">
+  <div class="modal">
+    <button class="modal-close" onclick="closeModal('dev-modal')">&times;</button>
+    <span class="modal-label">FROM THE BUILDER</span>
+    <p class="dev-message">Hey, I built this for fun.<br>If you liked it, you can surprise me too.</p>
+    <div class="modal-field">
+      <div class="modal-field-label">MY WALLET</div>
+      <div class="modal-field-value">
+        <span style="font-size:0.77rem;">0x00547C5811c09102cB632Bbb945C395F8567d573</span>
+        <button class="btn-copy" onclick="copyDevWallet()" id="dev-copy-btn">Copy</button>
+      </div>
+    </div>
+    <a href="https://linktr.ee/FarhanOnChain" target="_blank" class="modal-contact">Contact me</a>
+  </div>
+</div>
+
+<footer>
+  FundAWish &mdash; built with kindness &mdash; <a href="https://linktr.ee/FarhanOnChain" style="color:#c17a3a;text-decoration:none;">Farhan</a>
+</footer>
+
+<script>
+  var API_URL = 'https://script.google.com/macros/s/AKfycbyZj0Ge2pIK_C2WyPs46WZ9d8BiwHcwlXeWuAFMg8wXGKLVoazA9rujLSlY5cN59LzEsg/exec';
+
+  var wishRegistry  = {};
+  var currentWishIdx = null;
+  var currentWallet = '';
+  var refreshTimer  = null;
+
+  /* ── HELPERS ── */
+  function escHtml(s){ return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;'); }
+
+  function timeAgo(iso){
+    try{
+      var d=Date.now()-new Date(iso).getTime(),m=Math.floor(d/60000),h=Math.floor(d/3600000),day=Math.floor(d/86400000);
+      if(m<1) return 'just now';
+      if(m<60) return m+'m ago';
+      if(h<24) return h+'h ago';
+      return day+'d ago';
+    }catch(e){return '';}
+  }
+
+  function updateStatus(rowId, status, callback) {
+    fetch(API_URL, {
+      method: 'POST',
+      headers: {'Content-Type': 'text/plain'},
+      body: JSON.stringify({ action: 'updateStatus', row_id: rowId, status: status })
+    })
+    .then(function(r){ return r.json(); })
+    .then(function(data){
+      if (callback) callback(data.ok);
+    })
+    .catch(function(){ if (callback) callback(false); });
+  }
+
+  /* ── MODAL STEP CONTROL ── */
+  function showStep(n) {
+    [1,2,3].forEach(function(i){
+      document.getElementById('step-'+i).className = 'modal-step' + (i===n?' active':'');
+      document.getElementById('dot-'+i).className  = 'step-dot'   + (i<=n?' active':'');
+    });
+    var labels = {1:'Send payment', 2:'Confirming', 3:'Fulfilled'};
+    document.getElementById('step-label-text').textContent = labels[n] || '';
+  }
+
+  /* ── OPEN FULFILL MODAL ── */
+  function openFulfill(idx) {
+    var wish = wishRegistry[idx];
+    if (!wish) return;
+
+    currentWishIdx = idx;
+    currentWallet  = wish.wallet || '';
+
+    document.getElementById('modal-wish-text').textContent = wish.text || '';
+    var uEl = document.getElementById('modal-username');
+    uEl.textContent = wish.username || '';
+    uEl.href = 'https://x.com/' + (wish.username||'').replace('@','');
+    document.getElementById('modal-wallet').textContent = wish.wallet || '';
+    document.getElementById('step2-username').textContent = wish.username || '';
+    document.getElementById('copy-btn').textContent = 'Copy';
+
+    // Go to right step based on current status
+    var s = wish.status || 'open';
+    if (s === 'completed') {
+      showStep(3);
+    } else if (s === 'sent') {
+      showStep(2);
+    } else {
+      showStep(1);
+    }
+
+    document.getElementById('fulfill-modal').classList.add('show');
+  }
+
+  function closeModal(id) {
+    var el = document.getElementById(id);
+    if (el) el.classList.remove('show');
+  }
+
+  /* ── STEP 1 → 2: payer confirms sent ── */
+  function confirmSent() {
+    var wish = wishRegistry[currentWishIdx];
+    if (!wish) return;
+    var btn = document.querySelector('#step-1 .btn-modal-action');
+    btn.disabled = true;
+    btn.textContent = 'Saving...';
+
+    updateStatus(wish.row_id, 'sent', function(ok) {
+      if (ok) {
+        wish.status = 'sent';
+        showStep(2);
+        refreshCardStatus(currentWishIdx, 'sent');
+      } else {
+        btn.disabled = false;
+        btn.textContent = "I've sent it ✓";
+        alert('Could not update. Please try again.');
+      }
+    });
+  }
+
+  /* ── STEP 2 → 3: receiver confirms received ── */
+  function confirmReceived() {
+    var wish = wishRegistry[currentWishIdx];
+    if (!wish) return;
+    var btn = document.getElementById('btn-received');
+    btn.disabled = true;
+    btn.textContent = 'Confirming...';
+
+    updateStatus(wish.row_id, 'completed', function(ok) {
+      if (ok) {
+        wish.status = 'completed';
+        showStep(3);
+        refreshCardStatus(currentWishIdx, 'completed');
+      } else {
+        btn.disabled = false;
+        btn.textContent = 'Yes, I received it ✓';
+        alert('Could not confirm. Please try again.');
+      }
+    });
+  }
+
+  /* ── UPDATE CARD VISUALLY WITHOUT FULL RE-RENDER ── */
+  function refreshCardStatus(idx, status) {
+    var cards = document.querySelectorAll('.wish-card');
+    var card = cards[idx];
+    if (!card) return;
+
+    card.className = 'wish-card status-' + status;
+
+    var badge = card.querySelector('.status-badge');
+    if (badge) {
+      badge.className = 'status-badge ' + status;
+      badge.textContent = status === 'sent' ? '⏳ Pending' : '✦ Fulfilled';
+    }
+
+    var btn = card.querySelector('.btn-fulfill');
+    if (btn && status !== 'open') {
+      btn.disabled = true;
+      btn.textContent = status === 'sent' ? 'Awaiting confirmation' : 'Fulfilled';
+    }
+  }
+
+  /* ── COPY ── */
+  function copyWallet() {
+    if (!currentWallet) return;
+    navigator.clipboard.writeText(currentWallet).then(function(){
+      var btn = document.getElementById('copy-btn');
+      btn.textContent='Copied!';
+      setTimeout(function(){btn.textContent='Copy';},2000);
+    }).catch(function(){});
+  }
+
+  function copyDevWallet() {
+    navigator.clipboard.writeText('0x00547C5811c09102cB632Bbb945C395F8567d573').then(function(){
+      var btn = document.getElementById('dev-copy-btn');
+      btn.textContent='Copied!';
+      setTimeout(function(){btn.textContent='Copy';},2000);
+    }).catch(function(){});
+  }
+
+  /* ── SURPRISE ME ── */
+  function surpriseMe() {
+    var cards = document.querySelectorAll('.wish-card');
+    if (cards.length === 0) return;
+    var idx  = Math.floor(Math.random()*cards.length);
+    var card = cards[idx];
+    card.scrollIntoView({behavior:'smooth',block:'center'});
+    card.classList.remove('highlight');
+    void card.offsetWidth;
+    card.classList.add('highlight');
+    setTimeout(function(){card.classList.remove('highlight');},1500);
+  }
+
+  /* ── STATUS LABEL ── */
+  function statusLabel(s) {
+    if (s==='sent')      return '<span class="status-badge sent">⏳ Pending</span>';
+    if (s==='completed') return '<span class="status-badge completed">✦ Fulfilled</span>';
+    return '<span class="status-badge open">Open</span>';
+  }
+
+  function fulfillBtnHtml(idx, status) {
+    if (status==='completed') return '<button class="btn-fulfill" disabled>Fulfilled</button>';
+    if (status==='sent')      return '<button class="btn-fulfill" disabled>Awaiting confirm</button>';
+    return '<button class="btn-fulfill" onclick="openFulfill('+idx+')">Make it happen</button>';
+  }
+
+  /* ── RENDER ── */
+  function renderWishes(wishes) {
+    var feed = document.getElementById('wish-feed');
+    wishRegistry = {};
+    feed.innerHTML = '';
+
+    if (!wishes || wishes.length === 0) {
+      feed.innerHTML =
+        '<div class="empty-state">' +
+          '<div class="empty-icon">&#9678;</div>' +
+          '<h2 class="empty-title">No wishes yet.</h2>' +
+          '<p class="empty-sub">Be the first one to put something out there.</p>' +
+          '<button class="btn-dev-smile" onclick="document.getElementById(\'dev-modal\').classList.add(\'show\')">&#10022; Make the dev smile</button>' +
+        '</div>';
+      return;
+    }
+
+    wishes.forEach(function(wish, i) {
+      if (!wish || !wish.text || !wish.username || !wish.wallet) return;
+      wishRegistry[i] = wish;
+
+      var status  = wish.status || 'open';
+      var card    = document.createElement('div');
+      card.className = 'wish-card' + (status!=='open' ? ' status-'+status : '');
+      card.style.animationDelay = (i*0.07)+'s';
+
+      card.innerHTML =
+        '<div class="card-top">' +
+          '<p class="wish-text">'+escHtml(wish.text)+'</p>' +
+          '<span class="wish-amount">$'+Number(wish.amount)+'</span>' +
+        '</div>' +
+        '<div class="card-meta">' +
+          '<div class="card-meta-left">' +
+            '<a class="username" href="https://x.com/'+escHtml(wish.username.replace('@',''))+'" target="_blank">'+escHtml(wish.username)+'</a>' +
+            '<span class="timestamp">'+timeAgo(wish.timestamp)+'</span>' +
+            statusLabel(status) +
+          '</div>' +
+          fulfillBtnHtml(i, status) +
+        '</div>' +
+        '<p class="micro-hint">FundAWish does not handle payments. Always verify before sending.</p>';
+
+      feed.appendChild(card);
+    });
+
+    // Check if homepage asked for random wish
+    if (sessionStorage.getItem('fundawish_random') === '1') {
+      sessionStorage.removeItem('fundawish_random');
+      setTimeout(surpriseMe, 600);
+    }
+  }
+
+  function showLoadingState() {
+    document.getElementById('wish-feed').innerHTML =
+      '<div class="empty-state" style="opacity:0.45"><p style="font-family:\'Lora\',serif;color:var(--muted);font-size:0.96rem;">Loading wishes...</p></div>';
+  }
+
+  function fetchWishes() {
+    fetch(API_URL)
+      .then(function(r){ return r.json(); })
+      .then(function(data){ renderWishes(data.ok ? data.wishes : []); })
+      .catch(function(){
+        document.getElementById('wish-feed').innerHTML =
+          '<div class="empty-state"><p style="font-family:\'Lora\',serif;color:#c17a3a;font-size:0.95rem;">Could not load wishes. Check your connection.</p></div>';
+      });
+  }
+
+  document.addEventListener('DOMContentLoaded', function(){
+    showLoadingState();
+    fetchWishes();
+    refreshTimer = setInterval(fetchWishes, 30000);
+
+    document.addEventListener('click', function(e){
+      if (e.target.classList.contains('modal-backdrop')) e.target.classList.remove('show');
+    });
+  });
+</script>
+</body>
+</html>
