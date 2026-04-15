@@ -3,421 +3,193 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Make a wish — FundAWish</title>
+<title>Share a wish — FundAWish</title>
 <style>
-  @import url('https://fonts.googleapis.com/css2?family=Lora:wght@400;600;700&display=swap');
-  * { margin: 0; padding: 0; box-sizing: border-box; }
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=Lora:ital,wght@0,400;0,700;1,400&display=swap');
 
-  body {
-    font-family: 'Helvetica Neue', sans-serif;
-    background: linear-gradient(160deg,#fffdf9 0%,#fff0ea 45%,#fffae8 100%);
-    color: #2a1f1a;
-    min-height: 100vh;
-  }
-  .orb{position:fixed;border-radius:50%;filter:blur(72px);pointer-events:none;z-index:0;animation:orbFloat linear infinite;}
-  .orb-1{width:400px;height:400px;background:rgba(232,137,106,0.12);top:-120px;left:-100px;animation-duration:18s;}
-  .orb-2{width:340px;height:340px;background:rgba(212,164,80,0.1);bottom:5%;right:-80px;animation-duration:24s;animation-delay:-9s;}
-  @keyframes orbFloat{0%{transform:translateY(0) scale(1);}33%{transform:translateY(-26px) scale(1.04);}66%{transform:translateY(14px) scale(0.97);}100%{transform:translateY(0) scale(1);}}
+*{margin:0;padding:0;box-sizing:border-box;}
+:root{
+  --pink:#e8896a;--gold:#d4a450;--gold-d:#c9923a;
+  --dark:#241810;--mid:#5a4a3e;--muted:#8a7a72;--faint:#c0b0a8;
+  --cream:#fff8f2;--glass:rgba(255,255,255,0.65);--glass-b:rgba(212,164,80,0.13);
+}
+html{scroll-behavior:smooth;}
+body{font-family:'Inter',sans-serif;background:var(--cream);color:var(--dark);min-height:100vh;overflow-x:hidden;line-height:1.6;}
 
-  nav {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    padding: 1.4rem 2.5rem;
-    background: rgba(255,253,249,0.85);
-    backdrop-filter: blur(12px);
-    position: sticky;
-    top: 0;
-    z-index: 100;
-    border-bottom: 1px solid rgba(212,166,100,0.15);
-  }
+.bg{position:fixed;inset:0;z-index:0;pointer-events:none;overflow:hidden;}
+.bg-grad{position:absolute;inset:0;background:radial-gradient(ellipse 80% 60% at 10% 0%,rgba(245,200,190,0.42) 0%,transparent 60%),radial-gradient(ellipse 70% 55% at 90% 20%,rgba(212,164,80,0.2) 0%,transparent 55%),radial-gradient(ellipse 90% 70% at 50% 100%,rgba(255,220,200,0.28) 0%,transparent 60%),linear-gradient(175deg,#ffffff 0%,#fff3ea 40%,#fffbf5 70%,#fff8f0 100%);}
+.bg-noise{position:absolute;inset:0;opacity:0.03;background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 512 512' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");background-size:256px 256px;}
+.orb{position:absolute;border-radius:50%;filter:blur(90px);animation:drift linear infinite;}
+.orb-a{width:580px;height:580px;background:radial-gradient(circle at 40% 40%,rgba(232,145,145,0.2),transparent 65%);top:-170px;left:-150px;animation-duration:22s;}
+.orb-b{width:480px;height:480px;background:radial-gradient(circle at 50% 50%,rgba(212,160,70,0.16),transparent 65%);bottom:0;right:-120px;animation-duration:30s;animation-delay:-12s;}
+@keyframes drift{0%{transform:translate(0,0) scale(1);}25%{transform:translate(20px,-26px) scale(1.04);}50%{transform:translate(-10px,18px) scale(0.97);}75%{transform:translate(14px,10px) scale(1.02);}100%{transform:translate(0,0) scale(1);}}
 
-  .logo {
-    font-family: 'Lora', Georgia, serif;
-    font-size: 1.45rem;
-    font-weight: 700;
-    background: linear-gradient(135deg, #d4a450, #e8896a);
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    background-clip: text;
-    text-decoration: none;
-    letter-spacing: -0.5px;
-  }
+nav{position:sticky;top:0;z-index:500;display:flex;align-items:center;justify-content:space-between;padding:1.25rem 3rem;background:rgba(255,252,248,0.75);backdrop-filter:blur(24px);border-bottom:1px solid rgba(212,164,80,0.1);}
+.logo{font-family:'Lora',serif;font-size:1.4rem;font-weight:700;background:linear-gradient(135deg,#b86820,#e8896a);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;text-decoration:none;letter-spacing:-0.2px;}
+.nav-link{font-size:0.84rem;color:var(--muted);text-decoration:none;font-weight:500;transition:color 0.2s;}
+.nav-link:hover{color:var(--gold-d);}
 
-  .nav-links {
-    display: flex;
-    gap: 2rem;
-    list-style: none;
-  }
+.page{position:relative;z-index:1;display:flex;flex-direction:column;align-items:center;padding:5rem 1.5rem 7rem;}
 
-  .nav-links a {
-    color: #7a6a60;
-    text-decoration: none;
-    font-size: 0.9rem;
-    transition: color 0.25s;
-  }
+.page-header{text-align:center;margin-bottom:3rem;animation:riseUp 0.55s ease both;}
+.page-header h1{font-family:'Lora',serif;font-size:2.4rem;font-weight:700;color:var(--dark);letter-spacing:-0.8px;margin-bottom:0.6rem;}
+.page-header p{font-size:1rem;color:var(--muted);font-weight:300;line-height:1.65;}
 
-  .nav-links a:hover { color: #d4a450; }
-  .nav-home{font-size:0.88rem;color:#8a7a70;text-decoration:none;font-weight:500;transition:color 0.2s;}
-  .nav-home:hover{color:#d4a450;}
+/* ─── FORM CARD ─── */
+.card{
+  width:100%;max-width:520px;
+  background:var(--glass);
+  border:1px solid var(--glass-b);
+  border-radius:26px;
+  padding:3rem 3rem;
+  backdrop-filter:blur(20px);
+  box-shadow:0 8px 48px rgba(212,164,80,0.1),0 2px 12px rgba(0,0,0,0.04);
+  animation:riseUp 0.6s ease 0.1s both;
+}
 
-  .page {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    padding: 4rem 1.5rem 6rem;
-    position: relative;
-    overflow: hidden;
-  }
+.field{margin-bottom:1.7rem;position:relative;}
+.field label{display:block;font-size:0.7rem;font-weight:700;color:var(--faint);letter-spacing:0.1em;text-transform:uppercase;margin-bottom:0.55rem;}
+textarea,input[type=text],input[type=number]{
+  width:100%;
+  background:rgba(255,252,248,0.9);
+  border:1.5px solid rgba(212,164,80,0.16);
+  border-radius:14px;
+  padding:0.9rem 1.1rem;
+  font-size:0.94rem;color:var(--dark);
+  font-family:'Inter',sans-serif;
+  line-height:1.55;
+  outline:none;resize:none;-webkit-appearance:none;
+  transition:border-color 0.22s,box-shadow 0.22s,background 0.22s;
+}
+textarea:focus,input:focus{
+  border-color:rgba(212,164,80,0.5);
+  background:#fff;
+  box-shadow:0 0 0 4px rgba(212,164,80,0.09);
+}
+textarea{height:100px;}
+input[type=number]{-moz-appearance:textfield;}
+input[type=number]::-webkit-inner-spin-button,input[type=number]::-webkit-outer-spin-button{-webkit-appearance:none;}
 
-  .page::before {
-    content: '';
-    position: absolute;
-    top: -40px;
-    left: 50%;
-    transform: translateX(-50%);
-    width: 600px;
-    height: 400px;
-    background: radial-gradient(ellipse at center, rgba(232,137,106,0.1) 0%, rgba(212,164,80,0.06) 50%, transparent 70%);
-    pointer-events: none;
-  }
+.char-counter{position:absolute;right:0.9rem;bottom:0.7rem;font-size:0.68rem;color:var(--faint);font-variant-numeric:tabular-nums;transition:color 0.2s;}
+.char-counter.warn{color:var(--pink);}
+.helper{font-size:0.75rem;color:var(--faint);margin-top:0.42rem;line-height:1.55;}
+.amount-row{display:flex;align-items:center;gap:0.55rem;}
+.amount-pfx{font-size:1.05rem;color:var(--gold-d);font-weight:600;flex-shrink:0;}
+.input-row{display:grid;grid-template-columns:1fr 1fr;gap:1rem;}
+.field-sep{border:none;border-top:1px solid rgba(212,164,80,0.13);margin:1.8rem 0;}
+.sec-label{font-size:0.68rem;font-weight:700;color:rgba(180,150,120,0.8);letter-spacing:0.12em;text-transform:uppercase;margin-bottom:1.2rem;}
 
-  .page-header {
-    text-align: center;
-    margin-bottom: 2.8rem;
-    animation: fadeIn 0.6s ease both;
-  }
+/* ─── SUBMIT BUTTON ─── */
+.btn-submit{
+  width:100%;padding:1.05rem;
+  border:none;border-radius:100px;
+  background:linear-gradient(135deg,#e8896a 0%,#d4a450 100%);
+  color:#fff;font-family:'Inter',sans-serif;font-size:0.96rem;font-weight:600;
+  cursor:pointer;letter-spacing:0.01em;
+  box-shadow:0 4px 24px rgba(212,164,80,0.32),0 1px 4px rgba(0,0,0,0.06);
+  transition:transform 0.18s,box-shadow 0.18s;
+  margin-top:0.5rem;
+}
+.btn-submit:hover{transform:translateY(-2px);box-shadow:0 10px 36px rgba(212,164,80,0.44);}
+.btn-submit:active{transform:scale(0.97);}
+.btn-submit:disabled{opacity:0.5;cursor:not-allowed;transform:none;box-shadow:none;}
 
-  .page-header h1 {
-    font-family: 'Georgia', serif;
-    font-size: 2.4rem;
-    font-weight: 700;
-    color: #2a1f1a;
-    letter-spacing: -1px;
-    margin-bottom: 0.6rem;
-  }
+/* ─── SUCCESS OVERLAY ─── */
+.success-overlay{
+  position:fixed;inset:0;
+  background:rgba(255,250,245,0.95);
+  backdrop-filter:blur(20px);
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
+  z-index:999;opacity:0;pointer-events:none;
+  transition:opacity 0.4s ease;
+}
+.success-overlay.show{opacity:1;pointer-events:all;}
+.success-icon{
+  width:82px;height:82px;border-radius:50%;
+  background:linear-gradient(135deg,#e8896a,#d4a450);
+  display:flex;align-items:center;justify-content:center;
+  font-size:2rem;margin-bottom:2rem;
+  box-shadow:0 10px 36px rgba(212,164,80,0.4);
+  animation:popIn 0.5s cubic-bezier(0.34,1.56,0.64,1) both;
+}
+.success-title{font-family:'Lora',serif;font-size:2rem;color:var(--dark);margin-bottom:0.7rem;letter-spacing:-0.5px;opacity:0;animation:riseUp 0.5s ease 0.3s both;}
+.success-sub{color:var(--muted);font-size:0.95rem;font-weight:300;opacity:0;animation:riseUp 0.5s ease 0.45s both;margin-bottom:2.4rem;}
+.success-links{display:flex;gap:1rem;opacity:0;animation:riseUp 0.5s ease 0.6s both;}
+.btn-sm{padding:0.75rem 1.6rem;border-radius:100px;font-size:0.88rem;font-family:'Inter',sans-serif;cursor:pointer;text-decoration:none;transition:transform 0.2s;}
+.btn-sm:hover{transform:translateY(-1px);}
+.btn-sm-p{background:linear-gradient(135deg,#e8896a,#d4a450);color:#fff;border:none;box-shadow:0 4px 16px rgba(212,164,80,0.32);}
+.btn-sm-s{background:transparent;color:#b86820;border:1.5px solid rgba(212,164,80,0.36);}
 
-  .page-header p {
-    color: #8a7a70;
-    font-size: 0.95rem;
-    font-weight: 300;
-  }
+footer{position:relative;z-index:1;text-align:center;padding:2.5rem 1rem;font-size:0.78rem;color:var(--faint);border-top:1px solid rgba(212,164,80,0.09);}
+footer a{color:var(--muted);text-decoration:none;transition:color 0.2s;}
+footer a:hover{color:var(--gold-d);}
 
-  .card {
-    width: 100%;
-    max-width: 520px;
-    background: rgba(255,255,255,0.9);
-    border: 1px solid rgba(212,164,80,0.2);
-    border-radius: 28px;
-    padding: 2.8rem;
-    backdrop-filter: blur(16px);
-    box-shadow: 0 8px 48px rgba(212,164,80,0.12), 0 2px 12px rgba(0,0,0,0.04);
-    animation: fadeSlideUp 0.65s ease both;
-    animation-delay: 0.1s;
-  }
+@keyframes riseUp{from{opacity:0;transform:translateY(22px);}to{opacity:1;transform:translateY(0);}}
+@keyframes popIn{from{opacity:0;transform:scale(0.45);}to{opacity:1;transform:scale(1);}}
+@keyframes shake{0%,100%{transform:translateX(0);}20%{transform:translateX(-7px);}40%{transform:translateX(7px);}60%{transform:translateX(-4px);}80%{transform:translateX(4px);}}
 
-  .field {
-    margin-bottom: 1.6rem;
-    position: relative;
-  }
-
-  label {
-    display: block;
-    font-size: 0.8rem;
-    font-weight: 500;
-    color: #a09080;
-    letter-spacing: 0.06em;
-    margin-bottom: 0.55rem;
-  }
-
-  textarea, input {
-    width: 100%;
-    background: rgba(250,247,242,0.8);
-    border: 1.5px solid rgba(212,164,80,0.2);
-    border-radius: 14px;
-    padding: 0.9rem 1.1rem;
-    font-size: 0.96rem;
-    color: #2a1f1a;
-    font-family: 'Helvetica Neue', sans-serif;
-    transition: border-color 0.2s, box-shadow 0.2s, background 0.2s;
-    outline: none;
-    resize: none;
-    -webkit-appearance: none;
-  }
-
-  textarea:focus, input:focus {
-    border-color: rgba(212,164,80,0.6);
-    background: #fff;
-    box-shadow: 0 0 0 3px rgba(212,164,80,0.1);
-  }
-
-  textarea { height: 100px; line-height: 1.55; }
-
-  input[type="number"] {
-    -moz-appearance: textfield;
-  }
-
-  input[type="number"]::-webkit-inner-spin-button,
-  input[type="number"]::-webkit-outer-spin-button {
-    -webkit-appearance: none;
-  }
-
-  .char-counter {
-    position: absolute;
-    right: 0.9rem;
-    bottom: 0.7rem;
-    font-size: 0.72rem;
-    color: #c0b0a0;
-    font-variant-numeric: tabular-nums;
-    transition: color 0.2s;
-  }
-
-  .char-counter.warn { color: #e8896a; }
-
-  .helper {
-    font-size: 0.78rem;
-    color: #b0a090;
-    margin-top: 0.4rem;
-    line-height: 1.5;
-  }
-
-  .amount-row {
-    display: flex;
-    align-items: center;
-    gap: 0.6rem;
-  }
-
-  .amount-prefix {
-    font-size: 1.1rem;
-    color: #c17a3a;
-    font-weight: 500;
-    flex-shrink: 0;
-  }
-
-  .input-row {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 1rem;
-  }
-
-  .divider {
-    border: none;
-    border-top: 1px solid rgba(212,164,80,0.15);
-    margin: 1.8rem 0;
-  }
-
-  .section-label {
-    font-size: 0.75rem;
-    font-weight: 500;
-    color: #c0a880;
-    letter-spacing: 0.08em;
-    margin-bottom: 1.2rem;
-  }
-
-  .btn-submit {
-    width: 100%;
-    padding: 1.05rem;
-    border: none;
-    border-radius: 100px;
-    background: linear-gradient(135deg, #e8896a, #d4a450);
-    color: #fff;
-    font-family: 'Helvetica Neue', sans-serif;
-    font-size: 1rem;
-    font-weight: 500;
-    cursor: pointer;
-    transition: transform 0.18s, box-shadow 0.18s;
-    box-shadow: 0 4px 20px rgba(212,164,80,0.3);
-    letter-spacing: 0.01em;
-    margin-top: 0.5rem;
-  }
-
-  .btn-submit:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 8px 30px rgba(212,164,80,0.4);
-  }
-
-  .btn-submit:active {
-    transform: scale(0.97);
-    box-shadow: 0 2px 10px rgba(212,164,80,0.2);
-  }
-
-  .btn-submit:disabled {
-    opacity: 0.6;
-    cursor: not-allowed;
-    transform: none;
-  }
-
-  .success-overlay {
-    position: fixed;
-    inset: 0;
-    background: rgba(255,253,249,0.92);
-    backdrop-filter: blur(16px);
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    z-index: 999;
-    opacity: 0;
-    pointer-events: none;
-    transition: opacity 0.4s ease;
-  }
-
-  .success-overlay.show {
-    opacity: 1;
-    pointer-events: all;
-  }
-
-  .success-icon {
-    width: 80px;
-    height: 80px;
-    border-radius: 50%;
-    background: linear-gradient(135deg, #e8896a, #d4a450);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 2rem;
-    margin-bottom: 1.8rem;
-    box-shadow: 0 8px 32px rgba(212,164,80,0.35);
-    animation: popIn 0.5s cubic-bezier(0.34, 1.56, 0.64, 1) both;
-  }
-
-  .success-title {
-    font-family: 'Georgia', serif;
-    font-size: 1.9rem;
-    color: #2a1f1a;
-    margin-bottom: 0.7rem;
-    letter-spacing: -0.5px;
-    opacity: 0;
-    animation: fadeUp 0.5s ease 0.3s both;
-  }
-
-  .success-sub {
-    color: #8a7a70;
-    font-size: 0.95rem;
-    font-weight: 300;
-    opacity: 0;
-    animation: fadeUp 0.5s ease 0.45s both;
-    margin-bottom: 2rem;
-  }
-
-  .success-links {
-    display: flex;
-    gap: 1rem;
-    opacity: 0;
-    animation: fadeUp 0.5s ease 0.6s both;
-  }
-
-  .btn-sm {
-    padding: 0.7rem 1.5rem;
-    border-radius: 100px;
-    font-size: 0.88rem;
-    font-family: 'Helvetica Neue', sans-serif;
-    cursor: pointer;
-    text-decoration: none;
-    transition: transform 0.2s;
-  }
-
-  .btn-sm:hover { transform: translateY(-1px); }
-
-  .btn-sm-primary {
-    background: linear-gradient(135deg, #e8896a, #d4a450);
-    color: white;
-    border: none;
-    box-shadow: 0 4px 16px rgba(212,164,80,0.3);
-  }
-
-  .btn-sm-outline {
-    background: transparent;
-    color: #c17a3a;
-    border: 1.5px solid rgba(212,164,80,0.4);
-  }
-
-  @keyframes fadeIn {
-    from { opacity: 0; }
-    to { opacity: 1; }
-  }
-
-  @keyframes fadeSlideUp {
-    from { opacity: 0; transform: translateY(20px); }
-    to { opacity: 1; transform: translateY(0); }
-  }
-
-  @keyframes popIn {
-    from { opacity: 0; transform: scale(0.5); }
-    to { opacity: 1; transform: scale(1); }
-  }
-
-  @keyframes fadeUp {
-    from { opacity: 0; transform: translateY(10px); }
-    to { opacity: 1; transform: translateY(0); }
-  }
-
-  @keyframes shake {
-    0%, 100% { transform: translateX(0); }
-    20% { transform: translateX(-6px); }
-    40% { transform: translateX(6px); }
-    60% { transform: translateX(-4px); }
-    80% { transform: translateX(4px); }
-  }
-
-  footer {
-    text-align: center;
-    padding: 2rem;
-    font-family: 'Helvetica Neue', sans-serif;
-    font-size: 0.8rem;
-    color: #b0a098;
-    border-top: 1px solid rgba(212,164,80,0.1);
-  }
+@media(max-width:600px){
+  nav{padding:1.1rem 1.4rem;}
+  .page{padding:4rem 1rem 6rem;}
+  .card{padding:2.2rem 1.6rem;}
+  .input-row{grid-template-columns:1fr;}
+  .page-header h1{font-size:1.9rem;}
+}
 </style>
 </head>
 <body>
-<div class="orb orb-1"></div>
-<div class="orb orb-2"></div>
+
+<div class="bg">
+  <div class="bg-grad"></div>
+  <div class="bg-noise"></div>
+  <div class="orb orb-a"></div>
+  <div class="orb orb-b"></div>
+</div>
 
 <nav>
   <a href="index.html" class="logo">FundAWish</a>
-  <a href="index.html" class="nav-home">Home</a>
+  <a href="index.html" class="nav-link">Home</a>
 </nav>
 
 <div class="page">
   <div class="page-header">
-    <h1>Make a wish</h1>
-    <p>Say what you need. Keep it simple.</p>
+    <h1>Share a wish</h1>
+    <p>Say what you need. Keep it simple and honest.</p>
   </div>
 
   <div class="card">
     <div class="field">
-      <label>YOUR WISH</label>
+      <label>Your wish</label>
       <textarea id="wish-text" placeholder="I just need a cup of coffee today..." maxlength="120"></textarea>
       <span class="char-counter" id="char-count">0 / 120</span>
       <p class="helper">Keep it real. The simpler the better.</p>
     </div>
 
     <div class="field">
-      <label>AMOUNT (USD)</label>
+      <label>Amount (USD)</label>
       <div class="amount-row">
-        <span class="amount-prefix">$</span>
+        <span class="amount-pfx">$</span>
         <input type="number" id="wish-amount" placeholder="5" min="1" max="100">
       </div>
       <p class="helper">Between $1 and $100. Don't overthink it.</p>
     </div>
 
-    <hr class="divider">
-    <p class="section-label">WHERE TO REACH YOU</p>
+    <hr class="field-sep">
+    <p class="sec-label">Where to reach you</p>
 
     <div class="input-row">
       <div class="field">
-        <label>X USERNAME</label>
+        <label>X Username</label>
         <input type="text" id="wish-username" placeholder="@yourname">
       </div>
       <div class="field">
-        <label>EVM WALLET</label>
+        <label>EVM Wallet</label>
         <input type="text" id="wish-wallet" placeholder="0x...">
       </div>
     </div>
 
     <button class="btn-submit" id="submit-btn" onclick="submitWish()">
-      Drop Wish ✦
+      Put it out there ✦
     </button>
   </div>
 </div>
@@ -427,100 +199,72 @@
   <h2 class="success-title">Your wish is out there now</h2>
   <p class="success-sub">Someone might just make it real.</p>
   <div class="success-links">
-    <a href="fulfill.html" class="btn-sm btn-sm-primary">See all wishes</a>
-    <a href="make.html" class="btn-sm btn-sm-outline" onclick="resetForm()">Make another</a>
+    <a href="fulfill.html" class="btn-sm btn-sm-p">See all wishes</a>
+    <a href="make.html" class="btn-sm btn-sm-s" onclick="resetForm();return false;">Share another</a>
   </div>
 </div>
 
-<script>
-  // ─── PASTE YOUR APPS SCRIPT URL HERE ───────────────────────
-  var API_URL = 'https://script.google.com/macros/s/AKfycbyZj0Ge2pIK_C2WyPs46WZ9d8BiwHcwlXeWuAFMg8wXGKLVoazA9rujLSlY5cN59LzEsg/exec';
-  // ───────────────────────────────────────────────────────────
-
-  document.addEventListener('DOMContentLoaded', function () {
-    var textarea = document.getElementById('wish-text');
-    var counter  = document.getElementById('char-count');
-
-    textarea.addEventListener('input', function () {
-      var len = textarea.value.length;
-      counter.textContent = len + ' / 120';
-      counter.classList.toggle('warn', len > 100);
-    });
-  });
-
-  function submitWish() {
-    var text     = document.getElementById('wish-text').value.trim();
-    var amount   = parseInt(document.getElementById('wish-amount').value, 10);
-    var username = document.getElementById('wish-username').value.trim();
-    var wallet   = document.getElementById('wish-wallet').value.trim();
-
-    if (!text)                                 return shake('wish-text');
-    if (!amount || amount < 1 || amount > 100) return shake('wish-amount');
-    if (!username)                             return shake('wish-username');
-    if (!wallet)                               return shake('wish-wallet');
-
-    var wish = {
-      text:      text,
-      amount:    amount,
-      username:  username.startsWith('@') ? username : '@' + username,
-      wallet:    wallet,
-      timestamp: new Date().toISOString()
-    };
-
-    var btn = document.getElementById('submit-btn');
-    btn.disabled    = true;
-    btn.textContent = 'Sending...';
-
-    fetch(API_URL, {
-      method:  'POST',
-      headers: { 'Content-Type': 'text/plain' },
-      body:    JSON.stringify(wish)
-    })
-    .then(function (res) { return res.json(); })
-    .then(function (data) {
-      if (data.ok) {
-        document.getElementById('success').classList.add('show');
-      } else {
-        alert('Something went wrong: ' + (data.error || 'Unknown error'));
-        btn.disabled    = false;
-        btn.textContent = 'Drop Wish ✦';
-      }
-    })
-    .catch(function () {
-      alert('Could not reach the server. Check your connection and try again.');
-      btn.disabled    = false;
-      btn.textContent = 'Drop Wish ✦';
-    });
-  }
-
-  function shake(id) {
-    var el = document.getElementById(id);
-    el.style.borderColor = '#e8896a';
-    el.style.animation   = 'none';
-    void el.offsetWidth;
-    el.style.animation   = 'shake 0.4s ease';
-    setTimeout(function () {
-      el.style.borderColor = '';
-      el.style.animation   = '';
-    }, 600);
-    el.focus();
-  }
-
-  function resetForm() {
-    document.getElementById('wish-text').value     = '';
-    document.getElementById('wish-amount').value   = '';
-    document.getElementById('wish-username').value = '';
-    document.getElementById('wish-wallet').value   = '';
-    document.getElementById('char-count').textContent = '0 / 120';
-    var btn = document.getElementById('submit-btn');
-    btn.disabled    = false;
-    btn.textContent = 'Drop Wish ✦';
-    document.getElementById('success').classList.remove('show');
-  }
-</script>
-
 <footer>
-  FundAWish &mdash; built with kindness &mdash; <a href="https://linktr.ee/FarhanOnChain" style="color: #c17a3a; text-decoration: none;">Farhan</a>
+  FundAWish &mdash; built with kindness &mdash;
+  <a href="https://linktr.ee/FarhanOnChain">Farhan</a>
 </footer>
+
+<script>
+var API_URL='https://script.google.com/macros/s/AKfycbyZj0Ge2pIK_C2WyPs46WZ9d8BiwHcwlXeWuAFMg8wXGKLVoazA9rujLSlY5cN59LzEsg/exec';
+
+document.addEventListener('DOMContentLoaded',function(){
+  var ta=document.getElementById('wish-text');
+  var ct=document.getElementById('char-count');
+  ta.addEventListener('input',function(){
+    var l=ta.value.length;
+    ct.textContent=l+' / 120';
+    ct.classList.toggle('warn',l>100);
+  });
+});
+
+function submitWish(){
+  var text    =document.getElementById('wish-text').value.trim();
+  var amount  =parseInt(document.getElementById('wish-amount').value,10);
+  var username=document.getElementById('wish-username').value.trim();
+  var wallet  =document.getElementById('wish-wallet').value.trim();
+  if(!text)                         return shake('wish-text');
+  if(!amount||amount<1||amount>100) return shake('wish-amount');
+  if(!username)                     return shake('wish-username');
+  if(!wallet)                       return shake('wish-wallet');
+  var wish={
+    text:text,amount:amount,
+    username:username.startsWith('@')?username:'@'+username,
+    wallet:wallet,timestamp:new Date().toISOString()
+  };
+  var btn=document.getElementById('submit-btn');
+  btn.disabled=true;btn.textContent='Sending...';
+  fetch(API_URL,{method:'POST',headers:{'Content-Type':'text/plain'},body:JSON.stringify(wish)})
+    .then(function(r){return r.json();})
+    .then(function(d){
+      if(d.ok){document.getElementById('success').classList.add('show');}
+      else{alert('Something went wrong: '+(d.error||'Unknown error'));btn.disabled=false;btn.textContent='Put it out there ✦';}
+    })
+    .catch(function(){alert('Could not reach the server. Check your connection.');btn.disabled=false;btn.textContent='Put it out there ✦';});
+}
+
+function shake(id){
+  var el=document.getElementById(id);
+  el.style.borderColor='#e8896a';el.style.animation='none';
+  void el.offsetWidth;el.style.animation='shake 0.4s ease';
+  setTimeout(function(){el.style.borderColor='';el.style.animation='';},600);
+  el.focus();
+}
+
+function resetForm(){
+  document.getElementById('wish-text').value='';
+  document.getElementById('wish-amount').value='';
+  document.getElementById('wish-username').value='';
+  document.getElementById('wish-wallet').value='';
+  document.getElementById('char-count').textContent='0 / 120';
+  var btn=document.getElementById('submit-btn');
+  btn.disabled=false;btn.textContent='Put it out there ✦';
+  document.getElementById('success').classList.remove('show');
+}
+</script>
 </body>
 </html>
