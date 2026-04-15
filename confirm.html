@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Confirm Support — FundAWish</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+
+<!-- Background -->
+<div class="bg-scene" aria-hidden="true">
+  <div class="bg-gradient"></div>
+  <div class="orb orb-1"></div>
+  <div class="orb orb-2"></div>
+  <div class="orb orb-3"></div>
+  <div class="orb orb-4"></div>
+  <div class="orb orb-5"></div>
+  <div class="bg-noise"></div>
+  <div class="bg-vignette"></div>
+</div>
+
+<div class="page-wrap">
+
+  <header class="topbar">
+    <a href="index.html" class="home-link">Home</a>
+  </header>
+
+  <div class="confirm-center">
+    <div class="confirm-card reveal">
+
+      <!-- Not found state -->
+      <div id="not-found" class="card" style="display:none; text-align:center; padding:3rem 2rem;">
+        <div class="card-title" style="margin-bottom:1rem;">This link is not valid</div>
+        <p style="color:var(--ink-soft); margin-bottom:1.8rem;">
+          The confirmation link may be incorrect or already used.
+        </p>
+        <a href="index.html" class="btn btn-secondary">Go back home</a>
+      </div>
+
+      <!-- Confirm card -->
+      <div id="confirm-card-content" class="card" style="display:none;">
+
+        <span class="label-tag">Confirmation</span>
+        <div class="card-title" style="margin-bottom:1.4rem;">Did you receive support?</div>
+
+        <div class="confirm-wish-text" id="c-text"></div>
+
+        <div style="display:flex; gap:0.8rem; margin-bottom:1.6rem; align-items:center; flex-wrap:wrap;">
+          <span style="font-size:0.9rem; color:var(--ink-soft);">Shared by</span>
+          <span style="font-weight:500; color:var(--ink);" id="c-name"></span>
+          <div class="amount-badge" id="c-amount"></div>
+        </div>
+
+        <div class="disclaimer" style="margin-bottom:1.4rem; text-align:left;">
+          We do not handle payments. Please verify before sending support.
+        </div>
+
+        <div style="display:flex; flex-direction:column; gap:0.9rem;">
+          <button class="btn btn-primary btn-full" id="confirm-yes">
+            I received this support
+          </button>
+          <button class="btn btn-danger btn-full" id="confirm-no">
+            I did not receive anything
+          </button>
+        </div>
+
+        <p id="confirm-result" style="display:none; margin-top:1.2rem; font-size:0.95rem; text-align:center; line-height:1.6;"></p>
+
+        <div style="margin-top:1.6rem; text-align:center;">
+          <a href="fulfill.html" class="btn btn-outline" style="font-size:0.88rem; padding:10px 20px;">
+            See all wishes
+          </a>
+        </div>
+
+      </div>
+
+    </div>
+  </div>
+
+  <footer style="margin-top:-2rem;">
+    <p>Made by <a href="https://linktr.ee/FarhanOnChain" target="_blank" rel="noopener">Farhan</a></p>
+  </footer>
+
+</div>
+
+<script src="script.js"></script>
+</body>
+</html>

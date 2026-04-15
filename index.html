@@ -1,386 +1,112 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>FundAWish — A place where small wishes find real kindness</title>
-<style>
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=Lora:ital,wght@0,400;0,500;0,700;1,400;1,700&display=swap');
-
-/* ─── RESET & ROOT ─────────────────────── */
-*{margin:0;padding:0;box-sizing:border-box;}
-:root{
-  --pink:   #e8896a;
-  --rose:   #e8a5a5;
-  --gold:   #c9923a;
-  --gold-lt:#d4a450;
-  --cream:  #fff8f2;
-  --parchment:#fff3e8;
-  --dark:   #241810;
-  --mid:    #5a4a3e;
-  --muted:  #8a7a72;
-  --faint:  #c0b0a8;
-  --glass:  rgba(255,255,255,0.60);
-  --glass-b:rgba(212,164,80,0.12);
-}
-
-html{scroll-behavior:smooth;}
-body{
-  font-family:'Inter',sans-serif;
-  background:var(--cream);
-  color:var(--dark);
-  min-height:100vh;
-  overflow-x:hidden;
-  line-height:1.6;
-}
-
-/* ─── BACKGROUND ───────────────────────── */
-.bg{position:fixed;inset:0;z-index:0;pointer-events:none;overflow:hidden;}
-.bg-grad{
-  position:absolute;inset:0;
-  background:
-    radial-gradient(ellipse 80% 60% at 10% 0%,   rgba(245,200,190,0.45) 0%, transparent 60%),
-    radial-gradient(ellipse 70% 55% at 90% 20%,  rgba(212,164,80,0.22)  0%, transparent 55%),
-    radial-gradient(ellipse 90% 70% at 50% 100%, rgba(255,220,200,0.30) 0%, transparent 60%),
-    linear-gradient(175deg, #ffffff 0%, #fff3ea 40%, #fffbf5 70%, #fff8f0 100%);
-}
-.bg-noise{
-  position:absolute;inset:0;opacity:0.032;
-  background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 512 512' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
-  background-size:256px 256px;
-}
-.orb{position:absolute;border-radius:50%;filter:blur(90px);animation:drift linear infinite;}
-.orb-a{width:600px;height:600px;background:radial-gradient(circle at 40% 40%,rgba(232,145,145,0.22),transparent 65%);top:-180px;left:-160px;animation-duration:22s;}
-.orb-b{width:500px;height:500px;background:radial-gradient(circle at 50% 50%,rgba(212,160,70,0.18),transparent 65%);top:20%;right:-150px;animation-duration:29s;animation-delay:-11s;}
-.orb-c{width:450px;height:450px;background:radial-gradient(circle at 50% 50%,rgba(232,137,106,0.14),transparent 65%);bottom:0;left:8%;animation-duration:35s;animation-delay:-20s;}
-@keyframes drift{
-  0%  {transform:translate(0,0)   scale(1);}
-  25% {transform:translate(22px,-28px)  scale(1.04);}
-  50% {transform:translate(-12px, 20px) scale(0.97);}
-  75% {transform:translate(16px,  12px) scale(1.02);}
-  100%{transform:translate(0,0)   scale(1);}
-}
-
-/* ─── NAV ──────────────────────────────── */
-nav{
-  position:sticky;top:0;z-index:500;
-  display:flex;align-items:center;justify-content:space-between;
-  padding:1.25rem 3rem;
-  background:rgba(255,252,248,0.75);
-  backdrop-filter:blur(24px);
-  border-bottom:1px solid rgba(212,164,80,0.1);
-}
-.logo{
-  font-family:'Lora',serif;font-size:1.4rem;font-weight:700;
-  background:linear-gradient(135deg,#b86820,#e8896a);
-  -webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;
-  text-decoration:none;letter-spacing:-0.2px;
-}
-.nav-link{font-size:0.84rem;color:var(--muted);text-decoration:none;font-weight:500;letter-spacing:0.01em;transition:color 0.2s;}
-.nav-link:hover{color:var(--gold);}
-
-/* ─── LAYOUT WRAPPER ────────────────────── */
-.wrap{position:relative;z-index:1;max-width:1100px;margin:0 auto;padding:0 2rem;}
-.narrow{max-width:720px;margin:0 auto;}
-.center{text-align:center;}
-
-/* ─── HERO ──────────────────────────────── */
-.hero{
-  position:relative;z-index:1;
-  text-align:center;
-  padding:9rem 1rem 7rem;
-}
-.hero h1{
-  font-family:'Lora',serif;
-  font-size:clamp(2.6rem,6vw,4.4rem);
-  font-weight:700;
-  line-height:1.16;
-  letter-spacing:-1.2px;
-  color:var(--dark);
-  margin-bottom:1.5rem;
-}
-.hero h1 em{
-  font-style:italic;
-  background:linear-gradient(135deg,#b86820 0%,#e8896a 100%);
-  -webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;
-}
-.hero-sub{
-  font-size:1.12rem;color:var(--mid);font-weight:300;
-  line-height:1.75;max-width:440px;margin:0 auto 3.5rem;
-}
-.hero-cta{
-  display:flex;gap:1.1rem;justify-content:center;flex-wrap:wrap;
-  margin-bottom:2.5rem;
-}
-.live-count{
-  display:inline-flex;align-items:center;gap:0.5rem;
-  font-size:0.8rem;color:var(--muted);
-  background:rgba(255,255,255,0.5);border:1px solid rgba(212,164,80,0.18);
-  border-radius:100px;padding:0.32rem 1rem;
-  backdrop-filter:blur(8px);
-}
-.live-dot{
-  width:5px;height:5px;border-radius:50%;
-  background:#d4a450;
-  animation:pulse 2.2s ease-in-out infinite;
-}
-@keyframes pulse{0%,100%{opacity:1;transform:scale(1);}50%{opacity:0.3;transform:scale(0.55);}}
-
-/* ─── BUTTONS ───────────────────────────── */
-.btn-p{
-  display:inline-flex;align-items:center;gap:0.45rem;
-  padding:1rem 2.2rem;border-radius:100px;
-  background:linear-gradient(135deg,#e8896a 0%,#d4a450 100%);
-  color:#fff;font-size:0.94rem;font-weight:600;
-  text-decoration:none;border:none;cursor:pointer;
-  letter-spacing:0.01em;
-  box-shadow:0 4px 24px rgba(212,164,80,0.32),0 1px 4px rgba(0,0,0,0.06);
-  transition:transform 0.2s,box-shadow 0.2s;
-}
-.btn-p:hover{transform:translateY(-2px) scale(1.025);box-shadow:0 10px 36px rgba(212,164,80,0.44);}
-.btn-p:active{transform:scale(0.97);}
-
-.btn-s{
-  display:inline-flex;align-items:center;gap:0.45rem;
-  padding:1rem 2.2rem;border-radius:100px;
-  background:rgba(255,255,255,0.65);
-  color:#b86820;font-size:0.94rem;font-weight:600;
-  text-decoration:none;border:1.5px solid rgba(212,164,80,0.38);cursor:pointer;
-  backdrop-filter:blur(12px);
-  transition:transform 0.2s,box-shadow 0.2s,background 0.2s;
-}
-.btn-s:hover{transform:translateY(-2px) scale(1.025);background:rgba(255,255,255,0.9);box-shadow:0 6px 26px rgba(212,164,80,0.2);}
-
-.btn-g{
-  display:inline-flex;align-items:center;gap:0.4rem;
-  padding:0.7rem 1.6rem;border-radius:100px;
-  background:transparent;color:var(--muted);
-  font-size:0.82rem;font-weight:500;
-  border:1px solid rgba(212,164,80,0.22);cursor:pointer;
-  transition:all 0.2s;
-}
-.btn-g:hover{color:#b86820;border-color:rgba(212,164,80,0.45);background:rgba(212,164,80,0.05);transform:translateY(-1px);}
-
-/* ─── SECTION SHARED ────────────────────── */
-.section{position:relative;z-index:1;padding:5rem 0;}
-.section-kicker{
-  font-size:0.68rem;font-weight:600;letter-spacing:0.16em;
-  color:#b86820;text-transform:uppercase;margin-bottom:0.8rem;
-}
-.section-h{
-  font-family:'Lora',serif;font-size:clamp(1.6rem,3vw,2.2rem);
-  font-weight:700;color:var(--dark);letter-spacing:-0.5px;
-  margin-bottom:0.8rem;
-}
-.section-sub{font-size:1rem;color:var(--mid);line-height:1.75;max-width:520px;}
-
-/* ─── DIVIDER ────────────────────────────── */
-.div-line{height:1px;background:linear-gradient(to right,transparent,rgba(212,164,80,0.2),transparent);}
-
-/* ─── ABOUT ─────────────────────────────── */
-.about-grid{
-  display:grid;
-  grid-template-columns:repeat(3,1fr);
-  gap:1.5rem;
-  margin-top:3rem;
-}
-.about-card{
-  background:var(--glass);
-  border:1px solid var(--glass-b);
-  border-radius:22px;
-  padding:2rem 1.8rem;
-  backdrop-filter:blur(16px);
-  box-shadow:0 2px 20px rgba(212,164,80,0.07);
-  transition:transform 0.25s,box-shadow 0.25s;
-  animation:riseUp 0.6s ease both;
-}
-.about-card:hover{transform:translateY(-4px);box-shadow:0 12px 36px rgba(212,164,80,0.13);}
-.about-icon{
-  width:44px;height:44px;border-radius:14px;
-  background:linear-gradient(135deg,rgba(232,137,106,0.18),rgba(212,164,80,0.14));
-  border:1px solid rgba(212,164,80,0.2);
-  display:flex;align-items:center;justify-content:center;
-  font-size:1.2rem;margin-bottom:1.2rem;
-}
-.about-card h3{font-family:'Lora',serif;font-size:1.05rem;font-weight:700;color:var(--dark);margin-bottom:0.6rem;letter-spacing:-0.2px;}
-.about-card p{font-size:0.88rem;color:var(--mid);line-height:1.75;}
-
-/* how it works steps */
-.steps-list{
-  display:flex;flex-direction:column;gap:0.6rem;margin-top:0.8rem;
-}
-.step-row{
-  display:flex;align-items:flex-start;gap:0.75rem;
-}
-.step-num{
-  flex-shrink:0;width:22px;height:22px;border-radius:50%;
-  background:linear-gradient(135deg,rgba(232,137,106,0.22),rgba(212,164,80,0.18));
-  border:1px solid rgba(212,164,80,0.28);
-  display:flex;align-items:center;justify-content:center;
-  font-size:0.65rem;font-weight:700;color:#b86820;margin-top:1px;
-}
-.step-txt{font-size:0.85rem;color:var(--mid);line-height:1.65;}
-
-/* ─── ACTION ROW ─────────────────────────── */
-.action-row{
-  display:flex;align-items:center;justify-content:center;
-  gap:1.2rem;flex-wrap:wrap;
-  padding:5rem 0 6rem;
-}
-
-/* ─── FOOTER ─────────────────────────────── */
-footer{
-  position:relative;z-index:1;text-align:center;
-  padding:2.5rem 1rem;font-size:0.78rem;color:var(--faint);
-  border-top:1px solid rgba(212,164,80,0.09);
-}
-footer a{color:var(--muted);text-decoration:none;transition:color 0.2s;}
-footer a:hover{color:var(--gold);}
-
-/* ─── FLOATER ────────────────────────────── */
-.floater{
-  position:fixed;bottom:2rem;right:2rem;z-index:900;
-  width:52px;height:52px;border-radius:50%;
-  background:linear-gradient(135deg,#e8896a,#d4a450);
-  display:flex;align-items:center;justify-content:center;
-  box-shadow:0 4px 22px rgba(212,164,80,0.44);
-  text-decoration:none;color:#fff;font-size:1.6rem;font-weight:300;
-  border:none;cursor:pointer;
-  transition:transform 0.2s,box-shadow 0.2s;
-  animation:riseUp 0.5s ease 1.2s both;
-}
-.floater:hover{transform:translateY(-3px) scale(1.1);box-shadow:0 10px 30px rgba(212,164,80,0.54);}
-
-/* ─── ANIMATIONS ─────────────────────────── */
-@keyframes riseUp{from{opacity:0;transform:translateY(24px);}to{opacity:1;transform:translateY(0);}}
-
-/* ─── RESPONSIVE ─────────────────────────── */
-@media(max-width:768px){
-  nav{padding:1.1rem 1.4rem;}
-  .hero{padding:6.5rem 0.5rem 5rem;}
-  .hero h1{font-size:2.2rem;letter-spacing:-0.6px;}
-  .hero-sub{font-size:1rem;}
-  .wrap{padding:0 1.2rem;}
-  .section{padding:3.5rem 0;}
-  .about-grid{grid-template-columns:1fr;gap:1.1rem;}
-  .about-card{padding:1.6rem 1.5rem;}
-  .action-row{padding:3.5rem 0 5rem;}
-}
-</style>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>FundAWish — Make someone's day</title>
+  <link rel="stylesheet" href="style.css" />
 </head>
 <body>
 
 <!-- Background -->
-<div class="bg">
-  <div class="bg-grad"></div>
+<div class="bg-scene" aria-hidden="true">
+  <div class="bg-gradient"></div>
+  <div class="orb orb-1"></div>
+  <div class="orb orb-2"></div>
+  <div class="orb orb-3"></div>
+  <div class="orb orb-4"></div>
+  <div class="orb orb-5"></div>
   <div class="bg-noise"></div>
-  <div class="orb orb-a"></div>
-  <div class="orb orb-b"></div>
-  <div class="orb orb-c"></div>
+  <div class="bg-vignette"></div>
 </div>
 
-<!-- Nav -->
-<nav>
-  <a href="index.html" class="logo">FundAWish</a>
-  <a href="index.html" class="nav-link">Home</a>
-</nav>
+<div class="page-wrap">
 
-<!-- Hero -->
-<section class="hero">
-  <h1 style="animation:riseUp 0.6s ease both;">
-    A place where small wishes<br>find <em>real kindness</em>
-  </h1>
-  <p class="hero-sub" style="animation:riseUp 0.6s ease 0.12s both;">
-    People ask. People help.<br>It becomes real.
-  </p>
-  <div class="hero-cta" style="animation:riseUp 0.6s ease 0.22s both;">
-    <a href="make.html" class="btn-p">Share a wish</a>
-    <a href="fulfill.html" class="btn-s">Help someone</a>
-  </div>
-  <div class="live-count" style="animation:riseUp 0.6s ease 0.34s both;">
-    <div class="live-dot"></div>
-    <span id="wish-counter">Loading...</span>
-  </div>
-</section>
+  <!-- Top bar -->
+  <header class="topbar">
+    <a href="index.html" class="home-link">Home</a>
+  </header>
 
-<!-- About — visible on first scroll -->
-<div class="wrap">
-  <div class="div-line"></div>
-
-  <section class="section narrow center" style="padding-bottom:2rem;">
-    <p class="section-kicker">What this is</p>
-    <h2 class="section-h" style="margin-bottom:0.5rem;">Simple. Human. Real.</h2>
-    <p class="section-sub" style="margin:0 auto;">
-      No campaigns. No algorithms. Just a person who needs something small,<br>and another person who feels like helping.
-    </p>
-  </section>
-
-  <div class="about-grid" style="animation:riseUp 0.7s ease 0.15s both;">
-
-    <div class="about-card" style="animation-delay:0s;">
-      <div class="about-icon">◎</div>
-      <h3>What it is</h3>
-      <p>A quiet space where people share small, honest wishes. Nothing big. Nothing complicated. Just real needs from real people.</p>
-    </div>
-
-    <div class="about-card" style="animation-delay:0.08s;">
-      <div class="about-icon">✦</div>
-      <h3>How it works</h3>
-      <div class="steps-list">
-        <div class="step-row"><div class="step-num">1</div><span class="step-txt">Someone posts a small wish with their wallet.</span></div>
-        <div class="step-row"><div class="step-num">2</div><span class="step-txt">A stranger feels like helping and clicks it.</span></div>
-        <div class="step-row"><div class="step-num">3</div><span class="step-txt">They send directly. The recipient confirms. Done.</span></div>
+  <!-- Hero -->
+  <section class="hero-section">
+    <div class="hero-left reveal">
+      <h1 class="hero-headline">You can make someone's day in less than a minute</h1>
+      <p class="hero-sub">
+        Some people just need a small push at the right moment.<br>
+        If you can be that person, you simply step in.
+      </p>
+      <div class="hero-btns">
+        <a href="fulfill.html" class="btn btn-primary">Make an impact</a>
+        <a href="make.html"    class="btn btn-secondary">Share something you need</a>
       </div>
     </div>
 
-    <div class="about-card" style="animation-delay:0.16s;">
-      <div class="about-icon">❤</div>
-      <h3>Why it exists</h3>
-      <p>Because sometimes a few dollars from a stranger can turn a hard day into something lighter. And giving should feel that easy.</p>
+    <div class="hero-deco reveal">
+      <div class="hero-orb-wrap">
+        <div class="hero-orb-main"></div>
+        <div class="hero-orb-inner"></div>
+        <div class="hero-float-1">A small wish</div>
+        <div class="hero-float-2">Someone stepped in</div>
+        <div class="hero-float-3">Real connection</div>
+      </div>
     </div>
+  </section>
 
+  <!-- About section -->
+  <div class="about-section">
+    <h2 class="reveal">What is happening here?</h2>
+    <p class="about-intro reveal">Simple. Human. Real.</p>
+
+    <div class="cards-grid">
+
+      <!-- Card 1 -->
+      <div class="card about-card reveal">
+        <span class="label-tag">Overview</span>
+        <div class="card-title">What this is?</div>
+        <p style="margin-bottom:1rem;">This is a simple space on the internet where small needs are shared openly.</p>
+        <ul>
+          <li>No complicated systems</li>
+          <li>No long processes</li>
+          <li>Just real people, real moments</li>
+        </ul>
+      </div>
+
+      <!-- Card 2 -->
+      <div class="card about-card reveal">
+        <span class="label-tag">Process</span>
+        <div class="card-title">How it works?</div>
+        <ul>
+          <li>Someone shares something they need</li>
+          <li>Another person decides to support it, directly and instantly</li>
+          <li>Later, the person confirms they received it</li>
+        </ul>
+        <p style="margin-top:1rem; font-size:0.95rem; color:var(--ink-faint);">No friction. No middle layers. Just action.</p>
+      </div>
+
+      <!-- Card 3 -->
+      <div class="card about-card reveal">
+        <span class="label-tag">Purpose</span>
+        <div class="card-title">Why this exists?</div>
+        <p style="margin-bottom:0.8rem;">
+          There are people out there with dreams, skills, and potential
+          but they get stuck because of something small.
+        </p>
+        <p>
+          This platform exists so you can be that moment for someone.
+          Not as a donor, but as someone who showed up when it mattered.
+        </p>
+      </div>
+
+    </div>
   </div>
 
-  <div class="div-line" style="margin-top:3rem;"></div>
+  <!-- Footer -->
+  <footer>
+    <p>Made by <a href="https://linktr.ee/FarhanOnChain" target="_blank" rel="noopener">Farhan</a></p>
+  </footer>
 
-  <!-- Action row -->
-  <div class="action-row">
-    <a href="make.html" class="btn-p">Share a wish</a>
-    <a href="fulfill.html" class="btn-s">Help someone</a>
-    <button class="btn-g" onclick="goRandom()">Pick a random wish</button>
-  </div>
 </div>
 
-<a href="make.html" class="floater" title="Share a wish">+</a>
-
-<footer>
-  FundAWish &mdash; built with kindness &mdash;
-  <a href="https://linktr.ee/FarhanOnChain">Farhan</a>
-</footer>
-
-<script>
-var API_URL='https://script.google.com/macros/s/AKfycbyZj0Ge2pIK_C2WyPs46WZ9d8BiwHcwlXeWuAFMg8wXGKLVoazA9rujLSlY5cN59LzEsg/exec';
-
-function goRandom(){
-  sessionStorage.setItem('fundawish_random','1');
-  window.location.href='fulfill.html';
-}
-
-document.addEventListener('DOMContentLoaded',function(){
-  fetch(API_URL)
-    .then(function(r){return r.json();})
-    .then(function(data){
-      var wishes=(data.ok&&data.wishes)?data.wishes:[];
-      var open=wishes.filter(function(w){return w.status!=='completed';});
-      var el=document.getElementById('wish-counter');
-      if(open.length===0)      el.textContent='No open wishes yet. Be the first.';
-      else if(open.length===1) el.textContent='1 wish floating out there';
-      else                     el.textContent=open.length+' wishes out there right now';
-    })
-    .catch(function(){
-      document.getElementById('wish-counter').textContent='Wishes are out there...';
-    });
-});
-</script>
+<script src="script.js"></script>
 </body>
 </html>

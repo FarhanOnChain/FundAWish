@@ -1,605 +1,82 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Help someone — FundAWish</title>
-<style>
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=Lora:ital,wght@0,400;0,700;1,400;1,700&display=swap');
-
-*{margin:0;padding:0;box-sizing:border-box;}
-:root{
-  --pink:#e8896a;--gold:#d4a450;--gold-d:#b86820;
-  --dark:#241810;--mid:#5a4a3e;--muted:#8a7a72;--faint:#c0b0a8;
-  --cream:#fff8f2;--glass:rgba(255,255,255,0.62);--glass-b:rgba(212,164,80,0.12);
-}
-html{scroll-behavior:smooth;}
-body{font-family:'Inter',sans-serif;background:var(--cream);color:var(--dark);min-height:100vh;overflow-x:hidden;line-height:1.6;}
-
-.bg{position:fixed;inset:0;z-index:0;pointer-events:none;overflow:hidden;}
-.bg-grad{position:absolute;inset:0;background:radial-gradient(ellipse 80% 60% at 10% 0%,rgba(245,200,190,0.42) 0%,transparent 60%),radial-gradient(ellipse 70% 55% at 90% 20%,rgba(212,164,80,0.2) 0%,transparent 55%),radial-gradient(ellipse 90% 70% at 50% 100%,rgba(255,220,200,0.28) 0%,transparent 60%),linear-gradient(175deg,#ffffff 0%,#fff3ea 40%,#fffbf5 70%,#fff8f0 100%);}
-.bg-noise{position:absolute;inset:0;opacity:0.03;background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 512 512' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");background-size:256px 256px;}
-.orb{position:absolute;border-radius:50%;filter:blur(90px);animation:drift linear infinite;}
-.orb-a{width:580px;height:580px;background:radial-gradient(circle at 40% 40%,rgba(232,145,145,0.2),transparent 65%);top:-180px;left:-160px;animation-duration:22s;}
-.orb-b{width:500px;height:500px;background:radial-gradient(circle at 50% 50%,rgba(212,160,70,0.17),transparent 65%);top:22%;right:-140px;animation-duration:29s;animation-delay:-11s;}
-.orb-c{width:440px;height:440px;background:radial-gradient(circle at 50% 50%,rgba(232,137,106,0.13),transparent 65%);bottom:0;left:8%;animation-duration:35s;animation-delay:-20s;}
-@keyframes drift{0%{transform:translate(0,0) scale(1);}25%{transform:translate(22px,-28px) scale(1.04);}50%{transform:translate(-12px,20px) scale(0.97);}75%{transform:translate(16px,12px) scale(1.02);}100%{transform:translate(0,0) scale(1);}}
-
-nav{position:sticky;top:0;z-index:500;display:flex;align-items:center;justify-content:space-between;padding:1.25rem 3rem;background:rgba(255,252,248,0.75);backdrop-filter:blur(24px);border-bottom:1px solid rgba(212,164,80,0.1);}
-.logo{font-family:'Lora',serif;font-size:1.4rem;font-weight:700;background:linear-gradient(135deg,#b86820,#e8896a);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;text-decoration:none;letter-spacing:-0.2px;}
-.nav-link{font-size:0.84rem;color:var(--muted);text-decoration:none;font-weight:500;transition:color 0.2s;}
-.nav-link:hover{color:var(--gold-d);}
-
-/* ─── PAGE ─── */
-.page{position:relative;z-index:1;max-width:780px;margin:0 auto;padding:4rem 2rem 7rem;}
-
-.page-top{display:flex;align-items:flex-end;justify-content:space-between;margin-bottom:3rem;flex-wrap:wrap;gap:1.2rem;}
-.page-top-left h1{font-family:'Lora',serif;font-size:2.3rem;font-weight:700;letter-spacing:-0.8px;color:var(--dark);margin-bottom:0.4rem;}
-.page-top-left p{color:var(--muted);font-size:0.92rem;font-weight:300;line-height:1.65;}
-
-.btn-surprise{
-  display:inline-flex;align-items:center;gap:0.4rem;
-  padding:0.65rem 1.35rem;border-radius:100px;
-  background:var(--glass);color:var(--gold-d);
-  font-size:0.82rem;font-weight:600;
-  border:1.5px solid rgba(212,164,80,0.28);cursor:pointer;
-  backdrop-filter:blur(12px);white-space:nowrap;
-  transition:transform 0.2s,background 0.2s,box-shadow 0.2s;
-}
-.btn-surprise:hover{background:rgba(255,255,255,0.9);transform:translateY(-1px);box-shadow:0 5px 18px rgba(212,164,80,0.14);}
-
-/* ─── WISH FEED ─── */
-.wish-feed{display:flex;flex-direction:column;gap:1.4rem;}
-
-/* ─── WISH CARD ─── */
-.wish-card{
-  background:var(--glass);
-  border:1px solid var(--glass-b);
-  border-radius:22px;
-  padding:2rem 2.2rem;
-  backdrop-filter:blur(18px);
-  box-shadow:0 4px 28px rgba(212,164,80,0.08),0 1px 6px rgba(0,0,0,0.04);
-  transition:transform 0.24s,box-shadow 0.24s,border-color 0.24s;
-  animation:riseCard 0.55s ease both;
-}
-.wish-card:hover{
-  transform:translateY(-4px);
-  box-shadow:0 14px 40px rgba(212,164,80,0.15),0 2px 8px rgba(0,0,0,0.05);
-  border-color:rgba(212,164,80,0.28);
-}
-.wish-card.highlight{
-  border-color:rgba(232,137,106,0.5);
-  box-shadow:0 0 0 3px rgba(232,137,106,0.1),0 14px 40px rgba(212,164,80,0.18);
-  animation:glowRing 1.5s ease;
-}
-.wish-card.st-sent{border-color:rgba(212,164,80,0.22);background:rgba(255,252,244,0.78);}
-.wish-card.st-completed{border-color:rgba(100,190,120,0.24);background:rgba(245,255,248,0.72);}
-
-/* emotion-first structure */
-.card-wish{
-  font-family:'Lora',serif;
-  font-size:1.12rem;
-  color:var(--dark);
-  line-height:1.68;
-  margin-bottom:1.4rem;
-}
-.card-meta{
-  display:flex;align-items:center;justify-content:space-between;
-  flex-wrap:wrap;gap:0.8rem;
-  margin-bottom:1.2rem;
-}
-.card-meta-left{display:flex;align-items:center;gap:0.8rem;flex-wrap:wrap;}
-.card-user{
-  font-size:0.84rem;color:var(--gold-d);
-  text-decoration:none;font-weight:600;
-  transition:opacity 0.2s;
-}
-.card-user:hover{opacity:0.68;}
-.card-time{font-size:0.74rem;color:var(--faint);}
-.card-amount{
-  font-size:0.9rem;font-weight:700;color:var(--gold-d);
-  background:rgba(212,164,80,0.1);
-  border:1px solid rgba(212,164,80,0.22);
-  border-radius:100px;padding:0.24rem 0.85rem;
-}
-
-/* status badges */
-.badge{
-  display:inline-flex;align-items:center;gap:0.26rem;
-  font-size:0.68rem;font-weight:700;
-  padding:0.2rem 0.65rem;border-radius:100px;
-  letter-spacing:0.04em;
-}
-.badge-open{background:rgba(212,164,80,0.1);color:#8a6010;border:1px solid rgba(212,164,80,0.2);}
-.badge-sent{background:rgba(100,140,220,0.1);color:#2050a0;border:1px solid rgba(100,140,220,0.2);}
-.badge-done{background:rgba(70,170,100,0.1);color:#1a6828;border:1px solid rgba(70,170,100,0.2);}
-
-/* card action area */
-.card-action{
-  display:flex;align-items:center;justify-content:space-between;
-  flex-wrap:wrap;gap:0.8rem;
-  padding-top:1.2rem;
-  border-top:1px solid rgba(212,164,80,0.1);
-}
-.card-disclaimer{font-size:0.69rem;color:var(--faint);font-style:italic;}
-.btn-help{
-  display:inline-flex;align-items:center;gap:0.35rem;
-  padding:0.58rem 1.25rem;border-radius:100px;
-  background:linear-gradient(135deg,#e8896a,#d4a450);
-  color:#fff;font-size:0.8rem;font-family:'Inter',sans-serif;font-weight:600;
-  border:none;cursor:pointer;
-  box-shadow:0 3px 14px rgba(212,164,80,0.28);
-  transition:transform 0.18s,box-shadow 0.18s;
-  flex-shrink:0;
-}
-.btn-help:hover{transform:translateY(-1px);box-shadow:0 6px 20px rgba(212,164,80,0.4);}
-.btn-help:active{transform:scale(0.96);}
-.btn-help:disabled{opacity:0.38;cursor:not-allowed;transform:none;box-shadow:none;}
-
-/* ─── EMPTY STATE ─── */
-.empty-state{text-align:center;padding:6rem 2rem;animation:riseCard 0.6s ease both;}
-.empty-icon{font-size:2.5rem;margin-bottom:1.2rem;opacity:0.28;}
-.empty-title{font-family:'Lora',serif;font-size:1.55rem;color:var(--mid);margin-bottom:0.6rem;}
-.empty-sub{color:var(--muted);font-size:0.9rem;margin-bottom:2.5rem;line-height:1.7;}
-.btn-dev{
-  display:inline-flex;align-items:center;gap:0.5rem;
-  padding:0.95rem 2.2rem;border-radius:100px;
-  background:var(--glass);border:1.5px solid rgba(212,164,80,0.26);
-  color:var(--gold-d);font-family:'Inter',sans-serif;font-size:0.9rem;font-weight:600;
-  cursor:pointer;backdrop-filter:blur(12px);
-  transition:transform 0.2s,box-shadow 0.2s;
-}
-.btn-dev:hover{transform:translateY(-2px);box-shadow:0 7px 24px rgba(212,164,80,0.18);}
-
-/* ─── KINDNESS BOARD ─── */
-.kb{margin-top:5rem;padding-top:3.5rem;border-top:1px solid rgba(212,164,80,0.13);}
-.kb-hd{margin-bottom:2rem;}
-.kb-hd h2{font-family:'Lora',serif;font-size:1.8rem;font-weight:700;color:var(--dark);letter-spacing:-0.5px;margin-bottom:0.35rem;}
-.kb-hd p{font-size:0.88rem;color:var(--muted);}
-.kb-list{display:flex;flex-direction:column;gap:0.9rem;}
-.kb-card{
-  display:flex;align-items:center;gap:1.1rem;
-  background:var(--glass);border:1px solid var(--glass-b);
-  border-radius:18px;padding:1.1rem 1.5rem;
-  backdrop-filter:blur(16px);
-  box-shadow:0 2px 16px rgba(212,164,80,0.06);
-  transition:transform 0.22s,box-shadow 0.22s,border-color 0.22s;
-  animation:riseCard 0.5s ease both;
-}
-.kb-card:hover{transform:translateY(-3px);box-shadow:0 10px 30px rgba(212,164,80,0.12);border-color:rgba(212,164,80,0.24);}
-.kb-card.kb-top{
-  background:linear-gradient(135deg,rgba(255,255,255,0.88),rgba(255,247,232,0.85));
-  border-color:rgba(212,164,80,0.22);
-  box-shadow:0 4px 22px rgba(212,164,80,0.1);
-}
-.kb-rank{font-size:1.1rem;min-width:2rem;text-align:center;flex-shrink:0;}
-.kb-ava{
-  width:40px;height:40px;border-radius:50%;flex-shrink:0;
-  background:linear-gradient(135deg,rgba(232,137,106,0.2),rgba(212,164,80,0.16));
-  border:1px solid rgba(212,164,80,0.2);
-  display:flex;align-items:center;justify-content:center;
-  font-size:0.74rem;font-weight:700;color:var(--gold-d);
-}
-.kb-info{flex:1;}
-.kb-name{font-size:0.9rem;font-weight:600;color:var(--dark);margin-bottom:0.15rem;}
-.kb-label{font-size:0.73rem;color:var(--muted);}
-.kb-badge{
-  font-size:0.78rem;font-weight:600;color:var(--gold-d);
-  background:rgba(212,164,80,0.1);border:1px solid rgba(212,164,80,0.2);
-  border-radius:100px;padding:0.2rem 0.75rem;white-space:nowrap;
-}
-
-/* ─── MODAL ─── */
-.modal-backdrop{
-  position:fixed;inset:0;
-  background:rgba(36,24,16,0.52);backdrop-filter:blur(14px);
-  display:flex;align-items:center;justify-content:center;
-  z-index:999;padding:1.5rem;
-  opacity:0;pointer-events:none;
-  transition:opacity 0.28s ease;
-}
-.modal-backdrop.show{opacity:1;pointer-events:all;}
-.modal{
-  background:linear-gradient(150deg,#fffdf9,#fff6ee);
-  border:1px solid rgba(212,164,80,0.18);border-radius:28px;
-  padding:2.4rem 2.5rem;max-width:460px;width:100%;
-  box-shadow:0 28px 80px rgba(36,24,16,0.22);
-  transform:scale(0.87) translateY(18px);
-  transition:transform 0.35s cubic-bezier(0.34,1.56,0.64,1);
-}
-.modal-backdrop.show .modal{transform:scale(1) translateY(0);}
-.modal-close{float:right;background:none;border:none;font-size:1.2rem;color:var(--faint);cursor:pointer;transition:color 0.2s;line-height:1;margin:-0.2rem -0.2rem 0 0;}
-.modal-close:hover{color:var(--dark);}
-.modal-kicker{font-size:0.67rem;font-weight:700;color:var(--gold-d);letter-spacing:0.14em;text-transform:uppercase;display:block;margin-bottom:1.3rem;}
-.modal-wish{font-family:'Lora',serif;font-size:1.1rem;color:var(--dark);line-height:1.65;margin-bottom:1.5rem;padding-bottom:1.3rem;border-bottom:1px solid rgba(212,164,80,0.12);}
-
-.steps{display:flex;align-items:center;gap:0.45rem;margin-bottom:1.4rem;}
-.step-dot{width:7px;height:7px;border-radius:50%;background:rgba(212,164,80,0.2);transition:background 0.3s;}
-.step-dot.on{background:linear-gradient(135deg,#e8896a,#d4a450);}
-.step-text{font-size:0.69rem;color:var(--muted);font-weight:500;margin-left:0.22rem;}
-
-.modal-step{display:none;}
-.modal-step.active{display:block;}
-
-.mf{margin-bottom:1.1rem;}
-.mf-label{font-size:0.67rem;font-weight:700;color:var(--faint);letter-spacing:0.1em;text-transform:uppercase;margin-bottom:0.38rem;}
-.mf-val{
-  display:flex;align-items:center;justify-content:space-between;gap:0.7rem;
-  background:rgba(255,252,248,0.9);border:1px solid rgba(212,164,80,0.14);
-  border-radius:13px;padding:0.72rem 1rem;
-}
-.mf-val a{color:var(--gold-d);text-decoration:none;font-weight:600;font-size:0.88rem;transition:opacity 0.2s;}
-.mf-val a:hover{opacity:0.7;}
-.mf-val span{font-size:0.78rem;color:var(--mid);word-break:break-all;line-height:1.45;}
-.btn-copy{
-  flex-shrink:0;
-  background:linear-gradient(135deg,#e8896a,#d4a450);color:#fff;
-  border:none;border-radius:8px;
-  padding:0.32rem 0.72rem;font-size:0.71rem;
-  font-family:'Inter',sans-serif;font-weight:600;cursor:pointer;
-  transition:transform 0.15s;
-}
-.btn-copy:hover{transform:scale(1.07);}
-
-.btn-modal{
-  width:100%;padding:0.95rem;border:none;border-radius:100px;
-  background:linear-gradient(135deg,#e8896a,#d4a450);
-  color:#fff;font-family:'Inter',sans-serif;font-size:0.94rem;font-weight:600;
-  cursor:pointer;letter-spacing:0.01em;
-  box-shadow:0 4px 20px rgba(212,164,80,0.3);
-  transition:transform 0.18s,box-shadow 0.18s;
-  margin-top:0.5rem;
-}
-.btn-modal:hover{transform:translateY(-1px);box-shadow:0 8px 28px rgba(212,164,80,0.44);}
-.btn-modal:active{transform:scale(0.97);}
-.btn-modal:disabled{opacity:0.45;cursor:not-allowed;transform:none;box-shadow:none;}
-.btn-modal-2{
-  width:100%;padding:0.82rem;border:1.5px solid rgba(212,164,80,0.3);border-radius:100px;
-  background:transparent;color:var(--gold-d);font-family:'Inter',sans-serif;
-  font-size:0.88rem;font-weight:500;cursor:pointer;
-  transition:all 0.18s;margin-top:0.55rem;
-}
-.btn-modal-2:hover{background:rgba(212,164,80,0.06);}
-
-.box-sent{background:rgba(100,140,220,0.06);border:1px solid rgba(100,140,220,0.18);border-radius:15px;padding:1.3rem;text-align:center;margin-bottom:1rem;}
-.box-sent .bicon{font-size:1.6rem;margin-bottom:0.5rem;}
-.box-sent p{font-size:0.86rem;color:#2050a0;line-height:1.6;}
-.box-done{background:rgba(70,170,100,0.06);border:1px solid rgba(70,170,100,0.18);border-radius:15px;padding:1.5rem;text-align:center;margin-bottom:1rem;}
-.box-done .bicon{font-size:1.8rem;margin-bottom:0.5rem;}
-.box-done p{font-family:'Lora',serif;font-size:0.92rem;color:#1a6828;line-height:1.65;}
-.modal-disclaimer{margin-top:1.2rem;font-size:0.72rem;color:var(--faint);text-align:center;line-height:1.55;}
-
-.dev-msg{font-family:'Lora',serif;font-size:1rem;color:var(--mid);line-height:1.78;margin-bottom:1.5rem;padding-bottom:1.3rem;border-bottom:1px solid rgba(212,164,80,0.12);}
-.modal-contact{display:block;text-align:center;margin-top:1.1rem;padding:0.78rem;border-radius:100px;background:linear-gradient(135deg,#e8896a,#d4a450);color:#fff;font-family:'Inter',sans-serif;font-size:0.88rem;font-weight:600;text-decoration:none;transition:transform 0.2s,box-shadow 0.2s;box-shadow:0 4px 16px rgba(212,164,80,0.3);}
-.modal-contact:hover{transform:translateY(-2px);box-shadow:0 8px 22px rgba(212,164,80,0.42);}
-
-footer{position:relative;z-index:1;text-align:center;padding:2.5rem 1rem;font-size:0.78rem;color:var(--faint);border-top:1px solid rgba(212,164,80,0.09);}
-footer a{color:var(--muted);text-decoration:none;transition:color 0.2s;}
-footer a:hover{color:var(--gold-d);}
-
-@keyframes riseCard{from{opacity:0;transform:translateY(16px);}to{opacity:1;transform:translateY(0);}}
-@keyframes glowRing{0%{box-shadow:0 0 0 0 rgba(232,137,106,0.5);}50%{box-shadow:0 0 0 16px rgba(232,137,106,0);}100%{box-shadow:0 0 0 0 rgba(232,137,106,0);}}
-
-@media(max-width:680px){
-  nav{padding:1.1rem 1.4rem;}
-  .page{padding:3rem 1.2rem 6rem;}
-  .page-top h1{font-size:1.85rem;}
-  .modal{padding:2rem 1.6rem;}
-  .wish-card{padding:1.6rem 1.5rem;}
-  .card-wish{font-size:1.02rem;}
-}
-</style>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Make an Impact — FundAWish</title>
+  <link rel="stylesheet" href="style.css" />
 </head>
 <body>
 
-<div class="bg">
-  <div class="bg-grad"></div>
+<!-- Background -->
+<div class="bg-scene" aria-hidden="true">
+  <div class="bg-gradient"></div>
+  <div class="orb orb-1"></div>
+  <div class="orb orb-2"></div>
+  <div class="orb orb-3"></div>
+  <div class="orb orb-4"></div>
+  <div class="orb orb-5"></div>
   <div class="bg-noise"></div>
-  <div class="orb orb-a"></div>
-  <div class="orb orb-b"></div>
-  <div class="orb orb-c"></div>
+  <div class="bg-vignette"></div>
 </div>
 
-<nav>
-  <a href="index.html" class="logo">FundAWish</a>
-  <a href="index.html" class="nav-link">Home</a>
-</nav>
+<div class="page-wrap">
 
-<div class="page">
-  <div class="page-top">
-    <div class="page-top-left">
-      <h1>Help someone</h1>
-      <p>Pick a wish that speaks to you. Give directly.</p>
-    </div>
-    <button class="btn-surprise" onclick="surpriseMe()">✦ Surprise me</button>
+  <!-- Top bar -->
+  <header class="topbar">
+    <a href="index.html" class="home-link">Home</a>
+  </header>
+
+  <!-- Page header -->
+  <div class="page-header reveal">
+    <h1>Open wishes</h1>
+    <p>Someone shared something they need. Maybe you are the right person for this moment.</p>
   </div>
 
-  <div class="wish-feed" id="wish-feed"></div>
+  <div class="disclaimer">
+    We do not handle payments. Please verify before sending support.
+  </div>
 
-  <div id="kb-section"></div>
-</div>
+  <!-- Main grid -->
+  <section style="padding-top:2rem;">
 
-<!-- ── FULFILL MODAL ── -->
-<div class="modal-backdrop" id="fulfill-modal">
-  <div class="modal">
-    <button class="modal-close" onclick="closeModal('fulfill-modal')">&times;</button>
-    <div class="steps">
-      <div class="step-dot on" id="sd1"></div>
-      <div class="step-dot" id="sd2"></div>
-      <div class="step-dot" id="sd3"></div>
-      <span class="step-text" id="step-txt">Send payment</span>
+    <div class="fulfill-grid" id="wishes-grid">
+      <!-- populated by JS -->
     </div>
-    <span class="modal-kicker">Send directly to</span>
-    <p class="modal-wish" id="m-wish-text"></p>
 
-    <!-- Step 1 -->
-    <div class="modal-step active" id="ms1">
-      <div class="mf">
-        <div class="mf-label">X Username</div>
-        <div class="mf-val"><a id="m-username" href="#" target="_blank"></a></div>
-      </div>
-      <div class="mf">
-        <div class="mf-label">Wallet Address</div>
-        <div class="mf-val">
-          <span id="m-wallet"></span>
-          <button class="btn-copy" id="copy-btn" onclick="copyWallet()">Copy</button>
+    <!-- Dev card — always visible -->
+    <div style="margin-top:2.4rem;">
+      <div class="wish-card dev-card" id="dev-card">
+        <div class="wish-card-top">
+          <div class="wish-text" style="font-style:italic; color:var(--ink-soft);">
+            Make the dev smile if this idea resonates with you
+          </div>
+        </div>
+        <div class="wish-meta">
+          <span class="wish-name">Farhan</span>
+          <span class="badge badge-open">Creator</span>
+        </div>
+        <div class="wish-action">
+          <button class="btn btn-primary btn-full dev-btn">Show some love</button>
         </div>
       </div>
-      <p class="modal-disclaimer">FundAWish does not handle payments. Always verify before sending.</p>
-      <button class="btn-modal" onclick="confirmSent()">I've helped ✓</button>
     </div>
 
-    <!-- Step 2 -->
-    <div class="modal-step" id="ms2">
-      <div class="box-sent">
-        <div class="bicon">⏳</div>
-        <p>Payment sent. Waiting for <strong id="s2-user"></strong> to confirm they received it.</p>
-      </div>
-      <button class="btn-modal" id="btn-received" onclick="confirmReceived()">I received it ✓</button>
-      <button class="btn-modal-2" onclick="closeModal('fulfill-modal')">Close for now</button>
-      <p class="modal-disclaimer">Only the recipient should confirm receipt.</p>
-    </div>
+  </section>
 
-    <!-- Step 3 -->
-    <div class="modal-step" id="ms3">
-      <div class="box-done">
-        <div class="bicon">✦</div>
-        <p>This wish was fulfilled.<br>Made possible by someone kind.</p>
-      </div>
-      <button class="btn-modal-2" onclick="closeModal('fulfill-modal')">Close</button>
-    </div>
-  </div>
+  <!-- Leaderboard section -->
+  <section id="leaderboard-section" style="display:none; padding-top:3rem;">
+    <h2 class="reveal" style="font-size:clamp(1.6rem,3vw,2.2rem); margin-bottom:0.5rem;">People who showed up</h2>
+    <p class="reveal" style="color:var(--ink-soft); margin-bottom:2rem;">These are the ones who made it happen.</p>
+    <div id="lb-grid" style="display:flex; flex-direction:column; gap:1rem; max-width:560px;"></div>
+  </section>
+
+  <footer>
+    <p>Made by <a href="https://linktr.ee/FarhanOnChain" target="_blank" rel="noopener">Farhan</a></p>
+  </footer>
+
 </div>
 
-<!-- ── DEV MODAL ── -->
-<div class="modal-backdrop" id="dev-modal">
-  <div class="modal">
-    <button class="modal-close" onclick="closeModal('dev-modal')">&times;</button>
-    <span class="modal-kicker">From the builder</span>
-    <p class="dev-msg">Hey, I built this for fun.<br>If you liked it, you can surprise me too.</p>
-    <div class="mf">
-      <div class="mf-label">My Wallet</div>
-      <div class="mf-val">
-        <span style="font-size:0.74rem;">0x00547C5811c09102cB632Bbb945C395F8567d573</span>
-        <button class="btn-copy" id="dev-copy-btn" onclick="copyDevWallet()">Copy</button>
-      </div>
-    </div>
-    <a href="https://linktr.ee/FarhanOnChain" target="_blank" class="modal-contact">Contact me</a>
-  </div>
-</div>
-
-<footer>
-  FundAWish &mdash; built with kindness &mdash;
-  <a href="https://linktr.ee/FarhanOnChain">Farhan</a>
-</footer>
-
-<script>
-var API_URL='https://script.google.com/macros/s/AKfycbyZj0Ge2pIK_C2WyPs46WZ9d8BiwHcwlXeWuAFMg8wXGKLVoazA9rujLSlY5cN59LzEsg/exec';
-var wishReg={},curIdx=null,curWallet='',refreshTimer=null;
-
-function esc(s){return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;');}
-function timeAgo(iso){try{var d=Date.now()-new Date(iso).getTime(),m=Math.floor(d/60000),h=Math.floor(d/3600000),day=Math.floor(d/86400000);if(m<1)return'just now';if(m<60)return m+'m ago';if(h<24)return h+'h ago';return day+'d ago';}catch(e){return'';}}
-function initials(n){return n.replace('@','').toUpperCase().slice(0,2);}
-
-function updateStatus(rowId,status,cb){
-  fetch(API_URL,{method:'POST',headers:{'Content-Type':'text/plain'},body:JSON.stringify({action:'updateStatus',row_id:rowId,status:status})})
-    .then(function(r){return r.json();}).then(function(d){if(cb)cb(d.ok);}).catch(function(){if(cb)cb(false);});
-}
-
-function showStep(n){
-  [1,2,3].forEach(function(i){
-    document.getElementById('ms'+i).className='modal-step'+(i===n?' active':'');
-    document.getElementById('sd'+i).className='step-dot'+(i<=n?' on':'');
-  });
-  var lbl={1:'Send payment',2:'Confirming',3:'Fulfilled'};
-  document.getElementById('step-txt').textContent=lbl[n]||'';
-}
-
-function openFulfill(idx){
-  var w=wishReg[idx];if(!w)return;
-  curIdx=idx;curWallet=w.wallet||'';
-  document.getElementById('m-wish-text').textContent=w.text||'';
-  var ua=document.getElementById('m-username');
-  ua.textContent=w.username||'';ua.href='https://x.com/'+(w.username||'').replace('@','');
-  document.getElementById('m-wallet').textContent=w.wallet||'';
-  document.getElementById('s2-user').textContent=w.username||'';
-  document.getElementById('copy-btn').textContent='Copy';
-  var s=w.status||'open';
-  showStep(s==='completed'?3:s==='sent'?2:1);
-  document.getElementById('fulfill-modal').classList.add('show');
-}
-
-function closeModal(id){var el=document.getElementById(id);if(el)el.classList.remove('show');}
-
-function confirmSent(){
-  var w=wishReg[curIdx];if(!w)return;
-  var btn=document.querySelector('#ms1 .btn-modal');
-  btn.disabled=true;btn.textContent='Saving...';
-  updateStatus(w.row_id,'sent',function(ok){
-    if(ok){w.status='sent';showStep(2);patchCard(curIdx,'sent');}
-    else{btn.disabled=false;btn.textContent="I've helped ✓";alert('Could not update. Please try again.');}
-  });
-}
-
-function confirmReceived(){
-  var w=wishReg[curIdx];if(!w)return;
-  var btn=document.getElementById('btn-received');
-  btn.disabled=true;btn.textContent='Confirming...';
-  updateStatus(w.row_id,'completed',function(ok){
-    if(ok){w.status='completed';showStep(3);patchCard(curIdx,'completed');}
-    else{btn.disabled=false;btn.textContent='I received it ✓';alert('Could not confirm. Please try again.');}
-  });
-}
-
-function patchCard(idx,status){
-  var cards=document.querySelectorAll('.wish-card');
-  var c=cards[idx];if(!c)return;
-  c.className='wish-card'+(status!=='open'?' st-'+status:'');
-  var badge=c.querySelector('.badge');
-  if(badge){
-    badge.className='badge badge-'+(status==='sent'?'sent':status==='completed'?'done':'open');
-    badge.textContent=status==='sent'?'⏳ Pending':status==='completed'?'✦ Fulfilled':'Open';
-  }
-  var btn=c.querySelector('.btn-help');
-  if(btn&&status!=='open'){btn.disabled=true;btn.textContent=status==='sent'?'Awaiting confirm':'Fulfilled';}
-}
-
-function copyWallet(){
-  if(!curWallet)return;
-  navigator.clipboard.writeText(curWallet).then(function(){
-    var b=document.getElementById('copy-btn');b.textContent='Copied!';
-    setTimeout(function(){b.textContent='Copy';},2000);
-  }).catch(function(){});
-}
-function copyDevWallet(){
-  navigator.clipboard.writeText('0x00547C5811c09102cB632Bbb945C395F8567d573').then(function(){
-    var b=document.getElementById('dev-copy-btn');b.textContent='Copied!';
-    setTimeout(function(){b.textContent='Copy';},2000);
-  }).catch(function(){});
-}
-
-function surpriseMe(){
-  var cards=document.querySelectorAll('.wish-card');
-  if(!cards.length)return;
-  var c=cards[Math.floor(Math.random()*cards.length)];
-  c.scrollIntoView({behavior:'smooth',block:'center'});
-  c.classList.remove('highlight');void c.offsetWidth;
-  c.classList.add('highlight');
-  setTimeout(function(){c.classList.remove('highlight');},1600);
-}
-
-function badgeHtml(s){
-  if(s==='sent')return'<span class="badge badge-sent">⏳ Pending</span>';
-  if(s==='completed')return'<span class="badge badge-done">✦ Fulfilled</span>';
-  return'<span class="badge badge-open">Open</span>';
-}
-function actionHtml(i,s){
-  if(s==='completed')return'<button class="btn-help" disabled>Fulfilled</button>';
-  if(s==='sent')return'<button class="btn-help" disabled>Awaiting confirm</button>';
-  return'<button class="btn-help" onclick="openFulfill('+i+')">Help someone</button>';
-}
-
-function renderWishes(wishes){
-  var feed=document.getElementById('wish-feed');
-  wishReg={};feed.innerHTML='';
-  if(!wishes||!wishes.length){
-    feed.innerHTML=
-      '<div class="empty-state">'+
-        '<div class="empty-icon">◎</div>'+
-        '<h2 class="empty-title">No wishes yet.</h2>'+
-        '<p class="empty-sub">Be the first one to put something out there.</p>'+
-        '<button class="btn-dev" onclick="document.getElementById(\'dev-modal\').classList.add(\'show\')">Make the dev smile</button>'+
-      '</div>';
-    return;
-  }
-  wishes.forEach(function(w,i){
-    if(!w||!w.text||!w.username||!w.wallet)return;
-    wishReg[i]=w;
-    var s=w.status||'open';
-    var card=document.createElement('div');
-    card.className='wish-card'+(s!=='open'?' st-'+s:'');
-    card.style.animationDelay=(i*0.06)+'s';
-    card.innerHTML=
-      '<p class="card-wish">'+esc(w.text)+'</p>'+
-      '<div class="card-meta">'+
-        '<div class="card-meta-left">'+
-          '<a class="card-user" href="https://x.com/'+esc(w.username.replace('@',''))+'" target="_blank">'+esc(w.username)+'</a>'+
-          '<span class="card-time">'+timeAgo(w.timestamp)+'</span>'+
-          badgeHtml(s)+
-        '</div>'+
-        '<span class="card-amount">$'+Number(w.amount)+'</span>'+
-      '</div>'+
-      '<div class="card-action">'+
-        '<span class="card-disclaimer">FundAWish does not handle payments.</span>'+
-        actionHtml(i,s)+
-      '</div>';
-    feed.appendChild(card);
-  });
-  if(sessionStorage.getItem('fundawish_random')==='1'){
-    sessionStorage.removeItem('fundawish_random');
-    setTimeout(surpriseMe,700);
-  }
-  renderKindnessBoard(wishes);
-}
-
-function renderKindnessBoard(wishes){
-  var seen={};
-  wishes.forEach(function(w){
-    if(w.status==='completed'){
-      var u=w.username||'anon supporter';
-      if(!seen[u])seen[u]={username:u,count:0};
-      seen[u].count++;
-    }
-  });
-  var entries=Object.keys(seen).map(function(k){return seen[k];});
-  entries.sort(function(a,b){return b.count-a.count;});
-  entries=entries.slice(0,6);
-  var sec=document.getElementById('kb-section');
-  if(!entries.length){sec.innerHTML='';return;}
-  var icons=['🥇','🥈','🥉'];
-  var labels=['helped someone real','kind without reason','showed up quietly','gave without asking','silent supporter','made it happen'];
-  var html='<div class="kb"><div class="kb-hd"><h2>Kindness Board</h2><p>Wishes that found their person</p></div><div class="kb-list">';
-  entries.forEach(function(e,i){
-    var rank=i<3?icons[i]:(i+1);
-    var cls='kb-card'+(i===0?' kb-top':'');
-    html+=
-      '<div class="'+cls+'" style="animation-delay:'+(i*0.08)+'s">'+
-        '<span class="kb-rank">'+rank+'</span>'+
-        '<div class="kb-ava">'+initials(e.username)+'</div>'+
-        '<div class="kb-info">'+
-          '<div class="kb-name">'+esc(e.username)+'</div>'+
-          '<div class="kb-label">'+labels[i%labels.length]+'</div>'+
-        '</div>'+
-        '<span class="kb-badge">'+e.count+' fulfilled</span>'+
-      '</div>';
-  });
-  html+='</div></div>';
-  sec.innerHTML=html;
-}
-
-function showLoading(){
-  document.getElementById('wish-feed').innerHTML=
-    '<div class="empty-state" style="opacity:0.4"><p style="font-family:\'Lora\',serif;color:var(--muted);font-size:0.96rem;">Loading wishes...</p></div>';
-}
-
-function fetchWishes(){
-  fetch(API_URL)
-    .then(function(r){return r.json();})
-    .then(function(d){renderWishes(d.ok?d.wishes:[]);})
-    .catch(function(){
-      document.getElementById('wish-feed').innerHTML=
-        '<div class="empty-state"><p style="font-family:\'Lora\',serif;color:#c17a3a;font-size:0.94rem;">Could not load wishes. Check your connection.</p></div>';
-    });
-}
-
-document.addEventListener('DOMContentLoaded',function(){
-  showLoading();
-  fetchWishes();
-  refreshTimer=setInterval(fetchWishes,30000);
-  document.addEventListener('click',function(e){
-    if(e.target.classList.contains('modal-backdrop'))e.target.classList.remove('show');
-  });
-});
-</script>
+<script src="script.js"></script>
 </body>
 </html>
