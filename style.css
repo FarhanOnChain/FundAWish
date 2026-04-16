@@ -139,16 +139,28 @@ body {
 
 /* ── TOP BAR ── */
 .topbar {
-  padding: 1.4rem 2.4rem;
+  padding: 1.2rem 2.4rem;
   display: flex;
   align-items: center;
+  justify-content: space-between;
 }
+.brand-link {
+  font-family: 'Lora', serif;
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: var(--ink);
+  text-decoration: none;
+  letter-spacing: 0.01em;
+  opacity: 0.85;
+  transition: opacity 0.2s;
+}
+.brand-link:hover { opacity: 1; }
 .home-link {
-  font-size: 0.9rem;
+  font-size: 0.88rem;
   color: var(--ink-faint);
   text-decoration: none;
-  opacity: 0.7;
-  letter-spacing: 0.04em;
+  opacity: 0.65;
+  letter-spacing: 0.05em;
   transition: opacity 0.2s;
 }
 .home-link:hover { opacity: 1; color: var(--ink-soft); }
@@ -655,7 +667,52 @@ footer a:hover { opacity: 0.75; }
 }
 .empty-state p { font-family: 'Lora', serif; font-size: 1.2rem; font-style: italic; }
 
+/* ── WALLET REVEAL (after support click) ── */
+.wallet-reveal { display: flex; flex-direction: column; gap: 0.5rem; }
+.wallet-label {
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 1.2px;
+  color: var(--ink-faint);
+  font-family: 'DM Sans', sans-serif;
+}
+.wallet-box {
+  display: flex;
+  align-items: center;
+  gap: 0.7rem;
+  background: rgba(212,164,80,0.07);
+  border: 1px solid rgba(212,164,80,0.2);
+  border-radius: 12px;
+  padding: 0.7rem 1rem;
+  flex-wrap: wrap;
+}
+.wallet-addr {
+  font-size: 0.82rem;
+  color: var(--ink-soft);
+  word-break: break-all;
+  flex: 1;
+  font-family: 'DM Mono', 'Courier New', monospace;
+  letter-spacing: 0.02em;
+}
+
+/* ── X HANDLE LINK ── */
+.wish-x {
+  font-size: 0.82rem;
+  color: var(--accent-gold);
+  text-decoration: none;
+  font-weight: 500;
+  transition: opacity 0.2s;
+}
+.wish-x:hover { opacity: 0.7; }
+
 /* ── RESPONSIVE ── */
+@media (max-width: 768px) {
+  .topbar { padding: 1rem 1.4rem; }
+  .orb-3, .orb-4, .orb-5 { display: none; }
+  .orb-1, .orb-2 { filter: blur(55px) !important; opacity: 0.22 !important; animation-duration: 70s !important; }
+  .wish-card, .card { box-shadow: 0 4px 14px rgba(180,120,80,0.08); backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px); }
+  .wish-card:hover, .card:hover { transform: none; }
+}
 @media (max-width: 900px) {
   .hero-section { grid-template-columns: 1fr; gap: 3rem; text-align: center; }
   .hero-sub { max-width: 100%; }
@@ -670,4 +727,5 @@ footer a:hover { opacity: 0.75; }
   .hero-section { padding: 4rem 1.4rem 3rem; }
   .about-section { padding: 0 1.4rem 4rem; }
   .make-wrap { padding: 0 1.4rem 4rem; }
+  .wallet-addr { font-size: 0.75rem; }
 }

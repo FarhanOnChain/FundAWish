@@ -4,6 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Make an Impact — FundAWish</title>
+  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><circle cx='16' cy='16' r='16' fill='%23d4a450'/><text x='16' y='22' text-anchor='middle' font-size='18' fill='white'>✦</text></svg>" />
   <link rel="stylesheet" href="style.css" />
 </head>
 <body>
@@ -24,6 +25,7 @@
 
   <!-- Top bar -->
   <header class="topbar">
+    <a href="index.html" class="brand-link">FundAWish</a>
     <a href="index.html" class="home-link">Home</a>
   </header>
 
@@ -44,11 +46,11 @@
       <!-- populated by JS -->
     </div>
 
-    <!-- Dev card — always visible -->
+    <!-- Dev card — always visible, expandable -->
     <div style="margin-top:2.4rem;">
       <div class="wish-card dev-card" id="dev-card">
         <div class="wish-card-top">
-          <div class="wish-text" style="font-style:italic; color:var(--ink-soft);">
+          <div class="wish-text" style="font-style:italic;color:var(--ink-soft);">
             Make the dev smile if this idea resonates with you
           </div>
         </div>
@@ -56,7 +58,29 @@
           <span class="wish-name">Farhan</span>
           <span class="badge badge-open">Creator</span>
         </div>
-        <div class="wish-action">
+
+        <!-- Expandable content -->
+        <div id="dev-expanded" style="display:none;margin-top:0.4rem;">
+          <p style="font-size:0.97rem;color:var(--ink-soft);line-height:1.75;margin-bottom:1.2rem;">
+            I built this because there are many people out there who might need one push to get their things going on.
+            Just because they cannot ask upfront does not mean they do not need it.
+            If you have the ability to make someone's day by just giving up a coffee bill, then why not?
+          </p>
+
+          <div style="margin-bottom:1rem;">
+            <p class="wallet-label" style="margin-bottom:0.5rem;">My wallet</p>
+            <div class="wallet-box">
+              <code class="wallet-addr">0x00547C5811c09102cB632Bbb945C395F8567d573</code>
+              <button class="btn btn-secondary copy-wallet-btn" id="copy-dev-wallet" style="padding:6px 14px;font-size:0.82rem;flex-shrink:0;">Copy</button>
+            </div>
+          </div>
+
+          <button class="btn btn-primary" id="dev-contact-btn" style="width:100%;">
+            Contact Farhan
+          </button>
+        </div>
+
+        <div class="wish-action" style="margin-top:0.2rem;">
           <button class="btn btn-primary btn-full dev-btn">Show some love</button>
         </div>
       </div>
