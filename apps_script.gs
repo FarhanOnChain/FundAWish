@@ -1,13 +1,25 @@
 // FundAWish — Google Apps Script Backend
 // Deploy as Web App: Execute as Me, Access: Anyone
-// Sheet name: Wishes
-// Columns: id | name | text | amount | wallet | x_handle | status | claim_token | created
+// The sheet and headers are created automatically — no manual setup needed.
 
 const SHEET_NAME = 'Wishes';
+const HEADERS    = ['id','name','text','amount','wallet','x_handle','status','claim_token','created'];
 const COLS = { id:1, name:2, text:3, amount:4, wallet:5, x_handle:6, status:7, claim_token:8, created:9 };
 
+// ── Get or create the Wishes sheet with headers ──
 function getSheet() {
-  return SpreadsheetApp.getActiveSpreadsheet().getSheetByName(SHEET_NAME);
+  const ss = SpreadsheetApp.getActiveSpreadsheet();
+  let sheet = ss.getSheetByName(SHEET_NAME);
+
+  if (!sheet) {
+    sheet = ss.insertSheet(SHEET_NAME);
+    sheet.appendRow(HEADERS);
+    sheet.setFrozenRows(1);
+    // Make header row bold
+    sheet.getRange(1, 1, 1, HEADERS.length).setFontWeight('bold');
+  }
+
+  return sheet;
 }
 
 function generateId() {
@@ -16,66 +28,85 @@ function generateId() {
 
 function rowToObj(row) {
   return {
-    id:          row[COLS.id - 1],
-    name:        row[COLS.name - 1],
-    text:        row[COLS.text - 1],
-    amount:      row[COLS.amount - 1],
-    wallet:      row[COLS.wallet - 1],
-    x_handle:    row[COLS.x_handle - 1],
-    status:      row[COLS.status - 1],
-    claim_token: row[COLS.claim_token - 1],
-    created:     row[COLS.created - 1],
+    id:          String(row[COLS.id - 1]          || ''),
+    name:        String(row[COLS.name - 1]        || ''),
+    text:        String(row[COLS.text - 1]        || ''),
+    amount:      String(row[COLS.amount - 1]      || ''),
+    wallet:      String(row[COLS.wallet - 1]      || ''),
+    x_handle:    String(row[COLS.x_handle - 1]   || ''),
+    status:      String(row[COLS.status - 1]      || 'open'),
+    claim_token: String(row[COLS.claim_token - 1] || ''),
+    created:     Number(row[COLS.created - 1]     || 0),
+  };
+}
+
+// ── CORS headers — required for browser fetch() calls ──
+function corsHeaders() {
+  return {
+    'Access-Control-Allow-Origin':  '*',
+    'Access-Control-Allow-Methods': 'GET, POST, OPTIONS',
+    'Access-Control-Allow-Headers': 'Content-Type',
   };
 }
 
 function jsonResponse(data) {
-  return ContentService
+  const output = ContentService
     .createTextOutput(JSON.stringify(data))
     .setMimeType(ContentService.MimeType.JSON);
+  return output;
 }
 
-// GET — return all wishes
+// ── Handle OPTIONS preflight ──
+function doOptions(e) {
+  return ContentService
+    .createTextOutput('')
+    .setMimeType(ContentService.MimeType.TEXT);
+}
+
+// ── GET — return all wishes ──
 function doGet(e) {
   try {
     const sheet = getSheet();
     const data  = sheet.getDataRange().getValues();
     const wishes = [];
 
-    // Skip header row (row 0)
+    // Row 0 is headers, skip it
     for (let i = 1; i < data.length; i++) {
       const row = data[i];
-      if (!row[0]) continue; // skip empty rows
+      if (!row[0]) continue; // skip blank rows
       wishes.push(rowToObj(row));
     }
 
     // Most recent first
-    wishes.sort((a, b) => (b.created || 0) - (a.created || 0));
+    wishes.sort((a, b) => b.created - a.created);
 
     return jsonResponse({ success: true, wishes });
+
   } catch (err) {
     return jsonResponse({ success: false, error: err.message });
   }
 }
 
-// POST — createWish or updateStatus
+// ── POST — createWish or updateStatus ──
 function doPost(e) {
   try {
     const body   = JSON.parse(e.postData.contents);
     const action = body.action;
     const sheet  = getSheet();
 
+    // ── createWish ──
     if (action === 'createWish') {
       const id          = generateId();
       const claim_token = generateId();
       const now         = Date.now();
 
-      const row = new Array(9).fill('');
+      const row = new Array(HEADERS.length).fill('');
       row[COLS.id - 1]          = id;
-      row[COLS.name - 1]        = body.name || 'Anon';
-      row[COLS.text - 1]        = body.text;
-      row[COLS.amount - 1]      = body.amount;
-      row[COLS.wallet - 1]      = body.wallet || '';
-      row[COLS.x_handle - 1]   = body.x_handle || '';
+      row[COLS.name - 1]        = body.name        || 'Anon';
+      row[COLS.text - 1]        = body.text        || '';
+      row[COLS.amount - 1]      = body.amount      || '';
+      row[COLS.wallet - 1]      = body.wallet      || '';
+      row[COLS.x_handle - 1]   = body.x_handle    || '';
       row[COLS.status - 1]      = 'open';
       row[COLS.claim_token - 1] = claim_token;
       row[COLS.created - 1]     = now;
@@ -85,16 +116,18 @@ function doPost(e) {
       return jsonResponse({ success: true, id, claim_token, status: 'open' });
     }
 
+    // ── updateStatus ──
     if (action === 'updateStatus') {
-      const token  = body.claim_token;
-      const newStatus = body.status;
-      const data   = sheet.getDataRange().getValues();
+      const token     = body.claim_token || '';
+      const idToFind  = body.id          || '';
+      const newStatus = body.status      || 'open';
+      const data      = sheet.getDataRange().getValues();
 
       for (let i = 1; i < data.length; i++) {
-        const rowToken = data[i][COLS.claim_token - 1];
-        const rowId    = data[i][COLS.id - 1];
+        const rowToken = String(data[i][COLS.claim_token - 1] || '');
+        const rowId    = String(data[i][COLS.id - 1]          || '');
 
-        if (rowToken === token || rowId === body.id) {
+        if ((token && rowToken === token) || (idToFind && rowId === idToFind)) {
           sheet.getRange(i + 1, COLS.status).setValue(newStatus);
           return jsonResponse({ success: true, status: newStatus });
         }
@@ -103,7 +136,7 @@ function doPost(e) {
       return jsonResponse({ success: false, error: 'Wish not found' });
     }
 
-    return jsonResponse({ success: false, error: 'Unknown action' });
+    return jsonResponse({ success: false, error: 'Unknown action: ' + action });
 
   } catch (err) {
     return jsonResponse({ success: false, error: err.message });
