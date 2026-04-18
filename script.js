@@ -273,8 +273,9 @@ function buildModal() {
 
     const confirmBtn = document.getElementById('modal-confirm-btn');
     const statusMsg  = document.getElementById('modal-status-msg');
-    const supName    = document.getElementById('modal-sup-name').value.trim() || 'Anon';
+    const supName    = document.getElementById('modal-sup-name').value.trim(); // empty = anonymous
     const supX       = document.getElementById('modal-sup-x').value.trim();
+    console.log('[FundAWish] supporter name:', supName || '(anonymous)', '| x:', supX || '(none)');
 
     confirmBtn.disabled    = true;
     confirmBtn.textContent = 'Recording...';
@@ -295,6 +296,7 @@ function buildModal() {
       }
 
       // 2. Mark wish as pending + store supporter info
+      // Pass supName as-is — empty string means anonymous, named string means named
       await apiUpdateWishStatusWithSupporter(
         _modalWish.claim_token, 'pending', supName, supX
       );
@@ -643,10 +645,9 @@ function renderLeaderboard(wishes, lbSection, lbGrid) {
       <div class="amount-badge">${entry.total > 0 ? '$' + entry.total : 'fulfilled'}</div>
     `;
 
-    // Only named supporters get expandable detail
-    if (!entry.isAnon) {
-      card.addEventListener('click', () => toggleLbDetail(card, entry.wishes, entry.label));
-    }
+    // All cards expand to show which wish was supported
+    card.style.cursor = 'pointer';
+    card.addEventListener('click', () => toggleLbDetail(card, entry.wishes, entry.label));
 
     lbGrid.appendChild(card);
   });
@@ -672,13 +673,21 @@ function toggleLbDetail(card, records, name) {
 
   const rows = records.map(w => {
     const date = w.created_at ? new Date(w.created_at).toLocaleDateString() : '';
-    return `<div style="padding:0.4rem 0;border-bottom:1px solid rgba(212,164,80,0.1);display:flex;justify-content:space-between;align-items:center;gap:1rem;flex-wrap:wrap;">
-      <span style="color:var(--ink);">${escHtml(w.text || '')}</span>
-      <span style="white-space:nowrap;">${escHtml(fmtAmount(w.amount))} <span style="color:var(--ink-faint);font-size:0.8rem;">${date}</span></span>
-    </div>`;
+    return `
+      <div style="padding:0.7rem 0;border-bottom:1px solid rgba(212,164,80,0.1);">
+        <div style="color:var(--ink);font-family:'Lora',serif;font-size:0.95rem;line-height:1.5;margin-bottom:0.3rem;">${escHtml(w.text || '')}</div>
+        <div style="display:flex;align-items:center;gap:0.7rem;flex-wrap:wrap;font-size:0.8rem;color:var(--ink-faint);">
+          <span>Wished by <strong style="color:var(--ink-soft);">${escHtml(w.name || 'Anon')}</strong></span>
+          <span style="color:rgba(212,164,80,0.5);">·</span>
+          <span style="color:var(--accent-gold);font-weight:600;">${escHtml(fmtAmount(w.amount))}</span>
+          <span style="color:rgba(212,164,80,0.5);">·</span>
+          <span>${date}</span>
+        </div>
+      </div>`;
   }).join('');
 
-  detail.innerHTML = `<p style="font-weight:500;color:var(--ink);margin-bottom:0.6rem;">${escHtml(name)} supported</p>${rows}`;
+  const headerLabel = name === 'Anonymous' ? 'An anonymous supporter helped with' : `${escHtml(name)} supported`;
+  detail.innerHTML = `<p style="font-weight:500;color:var(--ink);margin-bottom:0.4rem;font-size:0.88rem;">${headerLabel}</p>${rows}`;
   card.insertAdjacentElement('afterend', detail);
 }
 
