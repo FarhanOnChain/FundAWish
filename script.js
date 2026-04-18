@@ -87,8 +87,9 @@ async function apiUpdateWishStatus(claim_token, status) {
     }
   );
   if (!res.ok) {
-    const e = await res.json().catch(() => ({}));
-    throw new Error(e.message || `Update failed: ${res.status}`);
+    const e   = await res.json().catch(() => ({}));
+    const msg = e.message || e.error_description || e.hint || JSON.stringify(e) || 'Update failed';
+    throw new Error(`[${res.status}] ${msg}`);
   }
   return true;
 }
@@ -253,15 +254,20 @@ function buildModal() {
     statusMsg.style.display = 'none';
 
     try {
-      // 1. Insert support record
-      await apiCreateSupport({
-        wish_id:        _modalWish.id,
-        supporter_name: supName,
-        supporter_x:    supX,
-        amount:         _modalWish.amount,
-      });
+      // 1. Try to insert support record — non-fatal if supports table missing
+      try {
+        await apiCreateSupport({
+          wish_id:        _modalWish.id,
+          supporter_name: supName,
+          supporter_x:    supX,
+          amount:         _modalWish.amount,
+        });
+      } catch (supportErr) {
+        // Log but don't block — supports table may not exist yet
+        console.warn('supports insert skipped:', supportErr.message);
+      }
 
-      // 2. Mark wish as pending (receiver confirms later)
+      // 2. Mark wish as pending — this is the critical step
       await apiUpdateWishStatus(_modalWish.claim_token, 'pending');
 
       // 3. Notify the card and close
@@ -272,8 +278,9 @@ function buildModal() {
       console.error('modal confirm error:', err);
       confirmBtn.disabled    = false;
       confirmBtn.textContent = 'I have sent the support';
-      statusMsg.textContent  = 'Something went wrong. Please try again.';
-      statusMsg.style.cssText = 'display:block;color:#c0624a;font-size:0.88rem;margin-bottom:0.9rem;text-align:center;';
+      // Show the REAL error so we can debug it
+      statusMsg.textContent  = err.message || 'Something went wrong. Please try again.';
+      statusMsg.style.cssText = 'display:block;color:#c0624a;font-size:0.85rem;margin-bottom:0.9rem;text-align:center;line-height:1.5;';
     }
   });
 }
