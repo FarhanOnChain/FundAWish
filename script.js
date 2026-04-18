@@ -455,14 +455,17 @@ function initFulfillPage() {
 
   function normalise(wishes) {
     return wishes.map(w => ({
-      id:          String(w.id          || ''),
-      name:        String(w.name        || 'Anon'),
-      text:        String(w.text        || ''),
-      amount:      String(w.amount      || ''),
-      wallet:      String(w.wallet      || ''),
-      x_handle:    String(w.x_handle    || ''),
-      claim_token: String(w.claim_token || ''),
-      status:      String(w.status      || 'open').toLowerCase().trim(),
+      id:             String(w.id             || ''),
+      name:           String(w.name           || 'Anon'),
+      text:           String(w.text           || ''),
+      amount:         String(w.amount         || ''),
+      wallet:         String(w.wallet         || ''),
+      x_handle:       String(w.x_handle       || ''),
+      claim_token:    String(w.claim_token    || ''),
+      status:         String(w.status         || 'open').toLowerCase().trim(),
+      supporter_name: String(w.supporter_name || '').trim(),
+      supporter_x:    String(w.supporter_x    || '').trim(),
+      created_at:     w.created_at            || '',
     }));
   }
 
