@@ -84,7 +84,8 @@ async function apiCreate(wish) {
 
   if (!res.ok) {
     const err = await res.json().catch(() => ({}));
-    throw new Error(err.message || `Insert failed: ${res.status}`);
+    const msg = err.message || err.error_description || err.hint || JSON.stringify(err) || 'Insert failed';
+    throw new Error('[' + res.status + '] ' + msg);
   }
 
   const data = await res.json();
@@ -230,7 +231,7 @@ function initMakePage() {
       btn.textContent = 'Share my wish';
       const topErr = document.getElementById('form-top-error');
       if (topErr) {
-        topErr.textContent   = 'Could not submit. Please check your connection and try again.';
+        topErr.textContent   = 'Error: ' + (err.message || 'Could not submit. Please check your connection and try again.');
         topErr.style.display = 'block';
       }
       console.error('createWish error:', err);
@@ -520,8 +521,24 @@ function initMobileOptimize() {
   });
 }
 
+// ── Supabase connection test (runs once, logs to console) ──
+async function testConnection() {
+  try {
+    const res = await fetch(`${DB}?select=id&limit=1`, { method: 'GET', headers: HEADERS });
+    const body = await res.text();
+    if (res.ok) {
+      console.log('[FundAWish] Supabase connected OK. Status:', res.status);
+    } else {
+      console.error('[FundAWish] Supabase connection FAILED. Status:', res.status, 'Body:', body);
+    }
+  } catch (e) {
+    console.error('[FundAWish] Supabase fetch error:', e.message);
+  }
+}
+
 // ── Init ──
 document.addEventListener('DOMContentLoaded', () => {
+  testConnection();
   initMobileOptimize();
   initReveal();
   initMakePage();
