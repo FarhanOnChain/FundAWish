@@ -729,3 +729,28 @@ footer a:hover { opacity: 0.75; }
   .make-wrap { padding: 0 1.4rem 4rem; }
   .wallet-addr { font-size: 0.75rem; }
 }
+
+/* ── SUPPORT MODAL ── */
+#support-modal {
+  /* overlay handled inline; card animation defined inline */
+}
+#support-modal-card {
+  max-height: 90vh;
+  overflow-y: auto;
+  scrollbar-width: thin;
+  scrollbar-color: rgba(212,164,80,0.3) transparent;
+}
+#support-modal-card::-webkit-scrollbar { width: 4px; }
+#support-modal-card::-webkit-scrollbar-thumb { background: rgba(212,164,80,0.35); border-radius: 4px; }
+
+/* Leaderboard detail panel */
+.lb-detail {
+  margin-top: -0.4rem;
+  margin-bottom: 0.8rem;
+}
+
+/* Mobile: modal takes full width */
+@media (max-width: 500px) {
+  #support-modal { padding: 1rem; align-items: flex-end; }
+  #support-modal-card { max-height: 85vh; border-radius: 20px 20px 16px 16px; }
+}
