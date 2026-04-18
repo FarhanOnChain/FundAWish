@@ -30,6 +30,15 @@ function escHtml(s) {
   );
 }
 
+// Prefix amount with $ if it looks purely numeric, otherwise leave as-is
+function fmtAmount(raw) {
+  const s = String(raw || '').trim();
+  if (!s) return '';
+  // If already has a currency symbol or letters, keep it
+  if (/[a-zA-Z$£€¥₹]/.test(s)) return s;
+  return '$' + s;
+}
+
 function copyText(text, btn) {
   navigator.clipboard.writeText(text).then(() => {
     const orig = btn.textContent;
@@ -84,6 +93,24 @@ async function apiUpdateWishStatus(claim_token, status) {
       method:  'PATCH',
       headers: { ...HEADERS, 'Prefer': 'return=representation' },
       body:    JSON.stringify({ status }),
+    }
+  );
+  if (!res.ok) {
+    const e   = await res.json().catch(() => ({}));
+    const msg = e.message || e.error_description || e.hint || JSON.stringify(e) || 'Update failed';
+    throw new Error(`[${res.status}] ${msg}`);
+  }
+  return true;
+}
+
+// PATCH status + supporter info in one call
+async function apiUpdateWishStatusWithSupporter(claim_token, status, supporter_name, supporter_x) {
+  const res = await fetch(
+    `${WISHES_DB}?claim_token=eq.${encodeURIComponent(claim_token)}`,
+    {
+      method:  'PATCH',
+      headers: { ...HEADERS, 'Prefer': 'return=representation' },
+      body:    JSON.stringify({ status, supporter_name, supporter_x }),
     }
   );
   if (!res.ok) {
@@ -267,8 +294,10 @@ function buildModal() {
         console.warn('supports insert skipped:', supportErr.message);
       }
 
-      // 2. Mark wish as pending — this is the critical step
-      await apiUpdateWishStatus(_modalWish.claim_token, 'pending');
+      // 2. Mark wish as pending + store supporter info
+      await apiUpdateWishStatusWithSupporter(
+        _modalWish.claim_token, 'pending', supName, supX
+      );
 
       // 3. Notify the card and close
       if (typeof _onSentCallback === 'function') _onSentCallback(_modalWish);
@@ -291,7 +320,7 @@ function openModal(wish, onSentCallback) {
 
   document.getElementById('modal-text').textContent   = wish.text   || '';
   document.getElementById('modal-name').textContent   = wish.name   || 'Anon';
-  document.getElementById('modal-amount').textContent = wish.amount || '';
+  document.getElementById('modal-amount').textContent = fmtAmount(wish.amount);
   document.getElementById('modal-wallet').textContent = wish.wallet || '';
 
   const xEl   = document.getElementById('modal-x');
@@ -470,7 +499,7 @@ function initFulfillPage() {
     div.innerHTML = `
       <div class="wish-card-top">
         <div class="wish-text">${escHtml(w.text)}</div>
-        <div class="amount-badge">${escHtml(w.amount)}</div>
+        <div class="amount-badge">${escHtml(fmtAmount(w.amount))}</div>
       </div>
       <div class="wish-meta">
         <span class="wish-name">${escHtml(w.name)}</span>
@@ -548,7 +577,8 @@ function renderLeaderboard(wishes, lbSection, lbGrid) {
   const details  = {};
 
   completed.forEach(w => {
-    const k = String(w.name || 'Anon').trim() || 'Anon';
+    // Use supporter_name if stored, else 'Anonymous'
+    const k = String(w.supporter_name || '').trim() || 'Anonymous';
     const n = parseFloat(String(w.amount || '0').replace(/[^0-9.]/g, '')) || 0;
     grouped[k] = (grouped[k] || 0) + n;
     if (!details[k]) details[k] = [];
@@ -576,7 +606,7 @@ function renderLeaderboard(wishes, lbSection, lbGrid) {
         <div class="lb-name">${escHtml(name)}</div>
         <div class="lb-amount">${count} wish${count > 1 ? 'es' : ''} fulfilled</div>
       </div>
-      <div class="amount-badge">${total > 0 ? total : 'fulfilled'}</div>
+      <div class="amount-badge">${total > 0 ? '$' + total : 'fulfilled'}</div>
     `;
 
     card.addEventListener('click', () => toggleLbDetail(card, details[name], name));
@@ -605,7 +635,7 @@ function toggleLbDetail(card, records, name) {
   const rows = records.map(s => {
     const date = s.created_at ? new Date(s.created_at).toLocaleDateString() : '';
     return `<div style="padding:0.4rem 0;border-bottom:1px solid rgba(212,164,80,0.1);display:flex;justify-content:space-between;align-items:center;gap:1rem;">
-      <span>${escHtml(s.amount || '')} supported</span>
+      <span>${escHtml(fmtAmount(s.amount))} supported</span>
       <span style="color:var(--ink-faint);font-size:0.8rem;">${date}</span>
     </div>`;
   }).join('');
@@ -645,7 +675,7 @@ async function initConfirmPage() {
     cardEl.style.display = 'block';
     document.getElementById('c-text').textContent   = wish.text   || '';
     document.getElementById('c-name').textContent   = wish.name   || 'Anon';
-    document.getElementById('c-amount').textContent = wish.amount || '';
+    document.getElementById('c-amount').textContent = fmtAmount(wish.amount);
 
     const btnYes = document.getElementById('confirm-yes');
     const btnNo  = document.getElementById('confirm-no');
@@ -673,6 +703,8 @@ async function initConfirmPage() {
         result.textContent   = 'Thank you. Your wish is now marked as fulfilled.';
         result.style.cssText = 'display:block;color:#357a55;margin-top:1rem;text-align:center;font-size:0.95rem;';
         btnYes.textContent   = 'Confirmed';
+        // 🎉 Launch celebration
+        launchCelebration(wish.text);
       } catch (err) {
         console.error('confirm yes:', err);
         btnYes.disabled = btnNo.disabled = false;
@@ -704,6 +736,50 @@ async function initConfirmPage() {
     if (loading)  loading.style.display  = 'none';
     if (notFound) notFound.style.display = 'block';
   }
+}
+
+// ── CELEBRATION ANIMATION ──
+function launchCelebration(wishText) {
+  // Confetti pieces
+  const colors = ['#d4a450','#ffb7a5','#f7a8b8','#fff3ec','#a0d4b0','#ffd700'];
+  for (let i = 0; i < 72; i++) {
+    const piece = document.createElement('div');
+    piece.className = 'confetti-piece';
+    piece.style.left     = Math.random() * 100 + 'vw';
+    piece.style.background = colors[Math.floor(Math.random() * colors.length)];
+    piece.style.width    = (Math.random() * 8 + 6) + 'px';
+    piece.style.height   = (Math.random() * 8 + 6) + 'px';
+    piece.style.borderRadius = Math.random() > 0.5 ? '50%' : '2px';
+    piece.style.animationDuration  = (Math.random() * 2.5 + 2) + 's';
+    piece.style.animationDelay     = (Math.random() * 1.2) + 's';
+    piece.style.opacity = '1';
+    document.body.appendChild(piece);
+    piece.addEventListener('animationend', () => piece.remove());
+  }
+
+  // Central burst overlay
+  const overlay = document.createElement('div');
+  overlay.className = 'celebration-overlay';
+  overlay.innerHTML = `
+    <div class="celebration-burst">
+      <div class="celebration-emoji">🌟</div>
+      <div class="celebration-text">Wish fulfilled!</div>
+      <div style="font-family:'DM Sans',sans-serif;font-size:1rem;color:var(--ink-soft);text-align:center;max-width:280px;line-height:1.5;margin-top:0.3rem;opacity:0.85;">
+        ${escHtml(wishText || 'Someone made a difference today')}
+      </div>
+    </div>
+  `;
+  document.body.appendChild(overlay);
+
+  // Pulse the background orbs
+  document.querySelectorAll('.orb').forEach(o => {
+    o.style.transition = 'opacity 0.4s';
+    o.style.opacity = '0.7';
+    setTimeout(() => { o.style.opacity = ''; o.style.transition = ''; }, 1800);
+  });
+
+  // Remove after animation completes
+  setTimeout(() => overlay.remove(), 3400);
 }
 
 // ── Mobile ──
