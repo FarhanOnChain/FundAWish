@@ -560,8 +560,9 @@ function initFulfillPage() {
 }
 
 // ── LEADERBOARD ──
-// Driven from wishes table — no separate supports table needed.
-// Groups completed wishes by the wish creator's name and shows total fulfilled amount.
+// Each completed wish = one entry.
+// Named supporters are grouped together across multiple wishes.
+// Anonymous supporters are kept separate (each wish gets its own row).
 function renderLeaderboard(wishes, lbSection, lbGrid) {
   if (!lbSection || !lbGrid) return;
 
@@ -572,44 +573,81 @@ function renderLeaderboard(wishes, lbSection, lbGrid) {
     return;
   }
 
-  // Group completed wishes by name, accumulate numeric amount
-  const grouped = {};
-  const details  = {};
+  // Build leaderboard entries
+  // Named: group by supporter_name so one real person's multiple supports merge
+  // Anonymous: each wish is its own entry (we can't know if it's the same person)
+  const namedGroups = {};  // supporter_name → { total, wishes[] }
+  const anonEntries = [];  // each anonymous wish as its own entry
 
   completed.forEach(w => {
-    // Use supporter_name if stored, else 'Anonymous'
-    const k = String(w.supporter_name || '').trim() || 'Anonymous';
+    const rawName = String(w.supporter_name || '').trim();
     const n = parseFloat(String(w.amount || '0').replace(/[^0-9.]/g, '')) || 0;
-    grouped[k] = (grouped[k] || 0) + n;
-    if (!details[k]) details[k] = [];
-    details[k].push(w);
+
+    if (rawName) {
+      // Named supporter — merge
+      if (!namedGroups[rawName]) namedGroups[rawName] = { total: 0, wishes: [] };
+      namedGroups[rawName].total += n;
+      namedGroups[rawName].wishes.push(w);
+    } else {
+      // Anonymous — keep separate
+      anonEntries.push({ total: n, wishes: [w] });
+    }
   });
 
-  const sorted = Object.entries(grouped).sort((a, b) => b[1] - a[1]).slice(0, 10);
+  // Combine into one sortable list
+  const entries = [
+    ...Object.entries(namedGroups).map(([name, data]) => ({
+      label:    name,
+      subLabel: data.wishes.length > 1 ? `${data.wishes.length} wishes supported` : '1 wish supported',
+      total:    data.total,
+      wishes:   data.wishes,
+      isAnon:   false,
+    })),
+    ...anonEntries.map((data, i) => ({
+      label:    'Anonymous',
+      subLabel: '1 wish supported',
+      total:    data.total,
+      wishes:   data.wishes,
+      isAnon:   true,
+    })),
+  ];
+
+  // Sort by total amount descending
+  entries.sort((a, b) => b.total - a.total);
 
   lbSection.style.display = 'block';
   lbGrid.innerHTML        = '';
 
-  sorted.forEach(([name, total], i) => {
+  entries.slice(0, 10).forEach((entry, i) => {
     const rank  = i + 1;
     const isTop = rank <= 3;
 
     const card = document.createElement('div');
     card.className = 'lb-card reveal' + (isTop ? ' lb-top-highlight' : '');
-    card.style.cursor = 'pointer';
+    card.style.cursor = entry.isAnon ? 'default' : 'pointer';
 
-    const count = details[name].length;
+    const xBadge = !entry.isAnon && entry.wishes[0] && entry.wishes[0].supporter_x
+      ? `<span style="font-size:0.78rem;color:var(--accent-gold);margin-left:0.3rem;">@${escHtml(entry.wishes[0].supporter_x)}</span>`
+      : '';
+
+    const anonStyle = entry.isAnon
+      ? 'opacity:0.65;font-style:italic;'
+      : '';
 
     card.innerHTML = `
       <div class="lb-rank${isTop ? ' top' : ''}">${rank}</div>
       <div class="lb-info">
-        <div class="lb-name">${escHtml(name)}</div>
-        <div class="lb-amount">${count} wish${count > 1 ? 'es' : ''} fulfilled</div>
+        <div class="lb-name" style="${anonStyle}">${escHtml(entry.label)}${xBadge}</div>
+        <div class="lb-amount">${entry.subLabel}</div>
       </div>
-      <div class="amount-badge">${total > 0 ? '$' + total : 'fulfilled'}</div>
+      <div class="amount-badge">${entry.total > 0 ? '$' + entry.total : 'fulfilled'}</div>
     `;
 
-    card.addEventListener('click', () => toggleLbDetail(card, details[name], name));
+    // Only named supporters get expandable detail
+    if (!entry.isAnon) {
+      card.addEventListener('click', () => toggleLbDetail(card, entry.wishes, entry.label));
+    }
+
     lbGrid.appendChild(card);
   });
 
@@ -632,15 +670,15 @@ function toggleLbDetail(card, records, name) {
     backdrop-filter:blur(12px);
   `;
 
-  const rows = records.map(s => {
-    const date = s.created_at ? new Date(s.created_at).toLocaleDateString() : '';
-    return `<div style="padding:0.4rem 0;border-bottom:1px solid rgba(212,164,80,0.1);display:flex;justify-content:space-between;align-items:center;gap:1rem;">
-      <span>${escHtml(fmtAmount(s.amount))} supported</span>
-      <span style="color:var(--ink-faint);font-size:0.8rem;">${date}</span>
+  const rows = records.map(w => {
+    const date = w.created_at ? new Date(w.created_at).toLocaleDateString() : '';
+    return `<div style="padding:0.4rem 0;border-bottom:1px solid rgba(212,164,80,0.1);display:flex;justify-content:space-between;align-items:center;gap:1rem;flex-wrap:wrap;">
+      <span style="color:var(--ink);">${escHtml(w.text || '')}</span>
+      <span style="white-space:nowrap;">${escHtml(fmtAmount(w.amount))} <span style="color:var(--ink-faint);font-size:0.8rem;">${date}</span></span>
     </div>`;
   }).join('');
 
-  detail.innerHTML = `<p style="font-weight:500;color:var(--ink);margin-bottom:0.6rem;">${escHtml(name)}'s supports</p>${rows}`;
+  detail.innerHTML = `<p style="font-weight:500;color:var(--ink);margin-bottom:0.6rem;">${escHtml(name)} supported</p>${rows}`;
   card.insertAdjacentElement('afterend', detail);
 }
 
