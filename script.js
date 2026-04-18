@@ -414,8 +414,8 @@ function initFulfillPage() {
 
   async function fetchAndRender() {
     try {
-      const [wishes, supports] = await Promise.all([apiGetWishes(), apiGetSupports()]);
-      render(normalise(wishes), supports);
+      const wishes = await apiGetWishes();
+      render(normalise(wishes));
     } catch (err) {
       console.error('fetchAndRender error:', err);
       grid.innerHTML = '<div class="empty-state"><p>Could not load wishes. Try again soon.</p></div>';
@@ -435,7 +435,7 @@ function initFulfillPage() {
     }));
   }
 
-  function render(wishes, supports) {
+  function render(wishes) {
     // Show open AND pending — only hide completed
     const visible = wishes.filter(w => w.status === 'open' || w.status === 'pending');
     grid.innerHTML = '';
@@ -446,7 +446,7 @@ function initFulfillPage() {
       visible.forEach(w => grid.appendChild(buildWishCard(w)));
     }
 
-    renderLeaderboard(supports, lbSection, lbGrid);
+    renderLeaderboard(wishes, lbSection, lbGrid);
     initReveal();
   }
 
@@ -531,24 +531,28 @@ function initFulfillPage() {
 }
 
 // ── LEADERBOARD ──
-function renderLeaderboard(supports, lbSection, lbGrid) {
+// Driven from wishes table — no separate supports table needed.
+// Groups completed wishes by the wish creator's name and shows total fulfilled amount.
+function renderLeaderboard(wishes, lbSection, lbGrid) {
   if (!lbSection || !lbGrid) return;
 
-  if (!supports || !supports.length) {
+  const completed = wishes.filter(w => w.status === 'completed');
+
+  if (!completed.length) {
     lbSection.style.display = 'none';
     return;
   }
 
-  // Group by supporter_name, sum amount
+  // Group completed wishes by name, accumulate numeric amount
   const grouped = {};
-  const details  = {}; // name → array of support records
+  const details  = {};
 
-  supports.forEach(s => {
-    const k = String(s.supporter_name || 'Anon').trim() || 'Anon';
-    const n = parseFloat(String(s.amount || '0').replace(/[^0-9.]/g, '')) || 0;
+  completed.forEach(w => {
+    const k = String(w.name || 'Anon').trim() || 'Anon';
+    const n = parseFloat(String(w.amount || '0').replace(/[^0-9.]/g, '')) || 0;
     grouped[k] = (grouped[k] || 0) + n;
     if (!details[k]) details[k] = [];
-    details[k].push(s);
+    details[k].push(w);
   });
 
   const sorted = Object.entries(grouped).sort((a, b) => b[1] - a[1]).slice(0, 10);
@@ -564,20 +568,17 @@ function renderLeaderboard(supports, lbSection, lbGrid) {
     card.className = 'lb-card reveal' + (isTop ? ' lb-top-highlight' : '');
     card.style.cursor = 'pointer';
 
-    const xHandle = details[name][0] && details[name][0].supporter_x
-      ? `<span style="font-size:0.8rem;color:var(--accent-gold);">@${escHtml(details[name][0].supporter_x)}</span>`
-      : '';
+    const count = details[name].length;
 
     card.innerHTML = `
       <div class="lb-rank${isTop ? ' top' : ''}">${rank}</div>
       <div class="lb-info">
-        <div class="lb-name">${escHtml(name)} ${xHandle}</div>
-        <div class="lb-amount">${details[name].length} wish${details[name].length > 1 ? 'es' : ''} supported</div>
+        <div class="lb-name">${escHtml(name)}</div>
+        <div class="lb-amount">${count} wish${count > 1 ? 'es' : ''} fulfilled</div>
       </div>
-      <div class="amount-badge">${total > 0 ? total : 'supported'}</div>
+      <div class="amount-badge">${total > 0 ? total : 'fulfilled'}</div>
     `;
 
-    // Click to expand supporter detail
     card.addEventListener('click', () => toggleLbDetail(card, details[name], name));
     lbGrid.appendChild(card);
   });
