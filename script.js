@@ -497,8 +497,11 @@ function initFulfillPage() {
     const badgeClass = isPending ? 'badge badge-pending' : 'badge badge-open';
     const badgeLabel = isPending ? 'Pending'             : 'Open';
 
+    // Pending action: direct confirm buttons — no fake identity check
+    const pendingAction = buildPendingAction(w);
+
     const actionHtml = isPending
-      ? `<p class="wish-waiting">Someone is supporting this. Waiting for ${escHtml(w.name)} to confirm.</p>`
+      ? pendingAction
       : `<button class="btn btn-primary btn-full support-btn">Support this wish</button>`;
 
     div.innerHTML = `
@@ -515,22 +518,160 @@ function initFulfillPage() {
     `;
 
     if (!isPending) {
+      // Open support modal
       div.querySelector('.support-btn').addEventListener('click', () => {
-        // Open modal — do NOT touch DB yet
         openModal(w, (confirmedWish) => {
-          // Called after "I have sent support" succeeds
-          // Update this card's badge to pending immediately
           const badge       = div.querySelector('.badge');
           badge.className   = 'badge badge-pending';
           badge.textContent = 'Pending';
-
-          const actionEl     = div.querySelector('.wish-action');
-          actionEl.innerHTML = `<p class="wish-waiting">Someone is supporting this. Waiting for ${escHtml(confirmedWish.name)} to confirm.</p>`;
+          // Swap action to inline confirm panel immediately
+          div.querySelector('.wish-action').innerHTML = pendingAction;
+          attachInlineConfirm(div, w);
         });
       });
+    } else {
+      // Already pending — wire up inline confirm
+      attachInlineConfirm(div, w);
     }
 
     return div;
+  }
+
+  // Wire up the two-step inline confirm on a pending wish card.
+  // Step 1: choose received / not received.
+  // Step 2: enter X handle (soft trust signal, not a hard lock).
+  function attachInlineConfirm(div, w) {
+    const receivedBtn = div.querySelector('.inline-received-btn');
+    const notRecvBtn  = div.querySelector('.inline-not-received-btn');
+    const xError      = div.querySelector('.inline-x-error');
+    const step1       = div.querySelector('.inline-step-1');
+    const step2       = div.querySelector('.inline-step-2');
+    const step2Msg    = div.querySelector('.inline-step-2-msg');
+    const xInput      = div.querySelector('.inline-x-input');
+    const finalBtn    = div.querySelector('.inline-final-btn');
+    const backBtn     = div.querySelector('.inline-back-btn');
+    if (!receivedBtn || !notRecvBtn) return;
+
+    let pendingStatus = null; // 'completed' or 'open'
+
+    // Step 1 — user chooses
+    receivedBtn.addEventListener('click', () => showStep2('completed'));
+    notRecvBtn.addEventListener('click',  () => showStep2('open'));
+
+    function showStep2(status) {
+      pendingStatus = status;
+      step1.style.display    = 'none';
+      step2.style.display    = 'block';
+      step2Msg.textContent   = status === 'completed'
+        ? 'Great! Just enter your X handle so we can log this.'
+        : 'Got it. Enter your X handle so we can reopen this wish.';
+      if (xError) xError.style.display = 'none';
+      xInput.value = '';
+      xInput.focus();
+    }
+
+    // Back to step 1
+    backBtn.addEventListener('click', () => {
+      step2.style.display = 'none';
+      step1.style.display = 'flex';
+      pendingStatus = null;
+    });
+
+    // Allow Enter key to submit
+    xInput.addEventListener('keydown', e => {
+      if (e.key === 'Enter') finalBtn.click();
+    });
+
+    // Step 2 — user submits X handle
+    finalBtn.addEventListener('click', async () => {
+      if (!pendingStatus) return;
+
+      const handle = xInput.value.trim().replace(/^@/, '');
+
+      if (!handle) {
+        if (xError) {
+          xError.textContent   = 'Please enter your X handle to continue.';
+          xError.style.display = 'block';
+        }
+        return;
+      }
+
+      finalBtn.disabled = backBtn.disabled = true;
+      finalBtn.textContent = 'Saving...';
+      if (xError) xError.style.display = 'none';
+
+      try {
+        await apiUpdateWishStatus(w.claim_token, pendingStatus);
+
+        const actionEl = div.querySelector('.wish-action');
+
+        if (pendingStatus === 'completed') {
+          actionEl.innerHTML = `<p class="wish-waiting" style="color:#357a55;font-style:normal;font-weight:500;">Wish fulfilled. Thank you, @${escHtml(handle)}!</p>`;
+          div.querySelector('.badge').className   = 'badge badge-completed';
+          div.querySelector('.badge').textContent = 'Completed';
+          launchCelebration(w.text);
+        } else {
+          actionEl.innerHTML = `<button class="btn btn-primary btn-full support-btn">Support this wish</button>`;
+          div.querySelector('.badge').className   = 'badge badge-open';
+          div.querySelector('.badge').textContent = 'Open';
+          div.querySelector('.support-btn').addEventListener('click', () => {
+            openModal(w, () => {
+              div.querySelector('.badge').className   = 'badge badge-pending';
+              div.querySelector('.badge').textContent = 'Pending';
+              div.querySelector('.wish-action').innerHTML = buildPendingAction(w);
+              attachInlineConfirm(div, w);
+            });
+          });
+        }
+      } catch (err) {
+        console.error('inline confirm error:', err);
+        finalBtn.disabled = backBtn.disabled = false;
+        finalBtn.textContent = 'Confirm';
+        if (xError) {
+          xError.textContent   = err.message || 'Something went wrong. Try again.';
+          xError.style.display = 'block';
+        }
+      }
+    });
+  }
+
+  function buildPendingAction(w) {
+    return `
+      <div class="inline-confirm">
+        <p class="wish-waiting" style="margin-bottom:0.8rem;">
+          Someone sent support for this wish.
+          <br><span style="font-size:0.82rem;opacity:0.8;">If you are <strong>${escHtml(w.name)}</strong> and received it, confirm below.</span>
+        </p>
+        <p class="inline-x-error" style="display:none;color:#c0624a;font-size:0.8rem;margin-bottom:0.5rem;"></p>
+        <!-- Step 1: choice buttons -->
+        <div class="inline-step-1" style="display:flex;gap:0.6rem;flex-wrap:wrap;">
+          <button class="btn btn-primary inline-received-btn" style="flex:1;padding:10px 14px;font-size:0.88rem;">
+            I received it
+          </button>
+          <button class="btn btn-outline inline-not-received-btn" style="flex:1;padding:10px 14px;font-size:0.88rem;">
+            I did not receive it
+          </button>
+        </div>
+        <!-- Step 2: x handle input (shown after choosing) -->
+        <div class="inline-step-2" style="display:none;margin-top:0.7rem;">
+          <p class="inline-step-2-msg" style="font-size:0.85rem;color:var(--ink-soft);margin-bottom:0.6rem;"></p>
+          <div style="display:flex;gap:0.6rem;flex-wrap:wrap;align-items:center;">
+            <input
+              class="form-input inline-x-input"
+              type="text"
+              placeholder="your X handle"
+              style="padding:9px 12px;font-size:0.88rem;border-radius:10px;flex:1;min-width:120px;"
+            />
+            <button class="btn btn-primary inline-final-btn" style="padding:10px 18px;font-size:0.88rem;white-space:nowrap;">
+              Confirm
+            </button>
+            <button class="btn btn-outline inline-back-btn" style="padding:10px 14px;font-size:0.88rem;">
+              Back
+            </button>
+          </div>
+        </div>
+      </div>
+    `;
   }
 
   // Dev card expand/collapse
@@ -562,6 +703,95 @@ function initFulfillPage() {
 
   fetchAndRender();
   setInterval(fetchAndRender, 20000);
+
+  // ── Lost confirmation link search ──
+  initLostLinkSearch();
+}
+
+function initLostLinkSearch() {
+  const toggle    = document.getElementById('lost-link-toggle');
+  const body      = document.getElementById('lost-link-body');
+  const chevron   = document.getElementById('lost-link-chevron');
+  const searchBtn = document.getElementById('lost-link-search-btn');
+  const xInput    = document.getElementById('lost-link-x');
+  const result    = document.getElementById('lost-link-result');
+  if (!toggle || !body) return;
+
+  // Collapse/expand
+  toggle.addEventListener('click', () => {
+    const open = body.style.display === 'block';
+    body.style.display    = open ? 'none' : 'block';
+    chevron.style.transform = open ? 'rotate(0deg)' : 'rotate(180deg)';
+  });
+
+  // Allow Enter key
+  xInput.addEventListener('keydown', e => {
+    if (e.key === 'Enter') searchBtn.click();
+  });
+
+  searchBtn.addEventListener('click', async () => {
+    const handle = xInput.value.trim().replace(/^@/, '').toLowerCase();
+    if (!handle) {
+      result.textContent   = 'Please enter your X handle.';
+      result.style.cssText = 'display:block;color:#c0624a;';
+      return;
+    }
+
+    searchBtn.disabled    = true;
+    searchBtn.textContent = 'Searching...';
+    result.style.display  = 'none';
+
+    try {
+      // Fetch wishes matching this x_handle
+      const res = await fetch(
+        `${WISHES_DB}?x_handle=ilike.${encodeURIComponent(handle)}&select=*`,
+        { method: 'GET', headers: HEADERS }
+      );
+      const data = await res.json();
+      const matches = Array.isArray(data) ? data : [];
+
+      searchBtn.disabled    = false;
+      searchBtn.textContent = 'Find my wish';
+
+      if (!matches.length) {
+        result.textContent   = 'No wishes found for @' + escHtml(handle) + '. Make sure you used the same X handle when you created the wish.';
+        result.style.cssText = 'display:block;color:var(--ink-faint);';
+        return;
+      }
+
+      const pending = matches.filter(w => w.status === 'pending');
+      const open    = matches.filter(w => w.status === 'open');
+
+      if (pending.length) {
+        result.innerHTML = `Found <strong>${pending.length}</strong> pending wish${pending.length > 1 ? 'es' : ''} for @${escHtml(handle)}. Scroll up to find your wish and confirm it directly from the card.`;
+        result.style.cssText = 'display:block;color:#357a55;line-height:1.6;';
+        // Highlight matching cards on the page
+        document.querySelectorAll('.wish-card').forEach(card => {
+          const nameEl = card.querySelector('.wish-x');
+          if (nameEl && nameEl.textContent.toLowerCase().includes(handle)) {
+            card.style.outline = '2px solid var(--accent-gold)';
+            card.style.outlineOffset = '3px';
+            card.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            setTimeout(() => {
+              card.style.outline = '';
+              card.style.outlineOffset = '';
+            }, 3500);
+          }
+        });
+      } else if (open.length) {
+        result.innerHTML = `Found <strong>${open.length}</strong> open wish${open.length > 1 ? 'es' : ''} for @${escHtml(handle)}. These are still waiting for a supporter.`;
+        result.style.cssText = 'display:block;color:var(--ink-soft);line-height:1.6;';
+      } else {
+        result.textContent   = 'Your wish was found but it looks like it is already completed.';
+        result.style.cssText = 'display:block;color:var(--ink-faint);';
+      }
+    } catch (err) {
+      searchBtn.disabled    = false;
+      searchBtn.textContent = 'Find my wish';
+      result.textContent    = 'Could not search right now. Try again.';
+      result.style.cssText  = 'display:block;color:#c0624a;';
+    }
+  });
 }
 
 // ── LEADERBOARD ──

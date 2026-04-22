@@ -47,6 +47,35 @@
     We do not handle payments. Please verify before sending support.
   </div>
 
+  <!-- Lost confirmation link banner -->
+  <div style="max-width:1200px;margin:0 auto;padding:0 2.4rem 0.5rem;">
+    <div class="lost-link-bar" id="lost-link-bar">
+      <button class="lost-link-toggle" id="lost-link-toggle">
+        <span>Lost your confirmation link?</span>
+        <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" class="lost-link-chevron" id="lost-link-chevron"><polyline points="6 9 12 15 18 9"/></svg>
+      </button>
+      <div class="lost-link-body" id="lost-link-body">
+        <p style="font-size:0.88rem;color:var(--ink-soft);margin-bottom:0.9rem;line-height:1.6;">
+          Find your wish in the list above. If it shows as <strong>Pending</strong>, you can confirm directly from the card using your X handle.
+          <br>If your wish is not visible here, it may have already been fulfilled or removed.
+        </p>
+        <div style="display:flex;gap:0.7rem;align-items:center;flex-wrap:wrap;">
+          <input
+            id="lost-link-x"
+            class="form-input"
+            type="text"
+            placeholder="Enter your X handle to find your wish"
+            style="padding:9px 14px;font-size:0.88rem;border-radius:10px;max-width:280px;flex:1;"
+          />
+          <button class="btn btn-secondary" id="lost-link-search-btn" style="padding:9px 18px;font-size:0.88rem;white-space:nowrap;">
+            Find my wish
+          </button>
+        </div>
+        <p id="lost-link-result" style="display:none;font-size:0.85rem;margin-top:0.7rem;"></p>
+      </div>
+    </div>
+  </div>
+
   <!-- Main grid -->
   <section style="padding-top:2rem;">
 

@@ -879,3 +879,68 @@ footer a:hover { opacity: 0.75; }
   .home-link { padding: 0.45rem 0.6rem; }
   .home-icon { width: 17px; height: 17px; }
 }
+/* ── INLINE CONFIRM (pending wish card) ── */
+.inline-confirm {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+}
+.inline-confirm-input-row {
+  display: flex;
+  gap: 0.6rem;
+  align-items: center;
+}
+.inline-x-input {
+  background: rgba(255,255,255,0.75) !important;
+  border-color: rgba(212,164,80,0.25) !important;
+}
+.inline-x-input:focus {
+  border-color: var(--accent-gold) !important;
+  box-shadow: 0 0 0 3px rgba(212,164,80,0.15) !important;
+}
+
+/* ── LOST CONFIRMATION LINK BAR ── */
+.lost-link-bar {
+  background: rgba(255,255,255,0.5);
+  border: 1px solid rgba(212,164,80,0.2);
+  border-radius: 14px;
+  padding: 0.1rem 0;
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  overflow: hidden;
+}
+.lost-link-toggle {
+  width: 100%;
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 0.75rem 1.2rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+  font-family: 'DM Sans', sans-serif;
+  font-size: 0.85rem;
+  color: var(--ink-soft);
+  font-weight: 500;
+  text-align: left;
+  transition: color 0.2s;
+}
+.lost-link-toggle:hover { color: var(--ink); }
+.lost-link-chevron {
+  flex-shrink: 0;
+  transition: transform 0.25s ease;
+  opacity: 0.6;
+}
+.lost-link-body {
+  display: none;
+  padding: 0 1.2rem 1rem;
+  border-top: 1px solid rgba(212,164,80,0.12);
+}
+
+/* ── INLINE CONFIRM STEP 2 ── */
+.inline-step-2-msg {
+  font-size: 0.85rem;
+  color: var(--ink-soft);
+  line-height: 1.5;
+}
